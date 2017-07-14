@@ -1,0 +1,48 @@
+{
+  "name": "redux-hist-dom",
+  "version": "0.0.1",
+  "description": "Component for Redux around History API.",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "lint": "./node_modules/.bin/tslint ./src/*.tsx ./test/*.tsx",
+    "build": "rm -rf ./lib && ./node_modules/.bin/tsc -p .",
+    "test": "npm run build && rm -rf ./test-dist && ./node_modules/.bin/tsc --outDir ./test-dist ./test/*.tsx && ./node_modules/.bin/mocha ./test-dist/*.js && rm -rf ./test-dist",
+    "release": "npm run lint && npm test && npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/minodisk/redux-hist.git"
+  },
+  "keywords": [
+    "component",
+    "container",
+    "history",
+    "location",
+    "react",
+    "redux"
+  ],
+  "author": "Daisuke Mino",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/minodisk/redux-hist/issues"
+  },
+  "homepage": "https://github.com/minodisk/redux-hist/tree/master/packages/redux-hist-dom#readme",
+  "dependencies": {
+    "react": "^15.6.1",
+    "react-redux": "^5.0.5",
+    "redux-router": "^2.1.2"
+  },
+  "devDependencies": {
+    "@types/react": "^15.0.38",
+    "@types/react-redux": "^4.4.46",
+    "@types/redux-router": "^1.0.40",
+    "typescript": "^2.4.1"
+  }
+}

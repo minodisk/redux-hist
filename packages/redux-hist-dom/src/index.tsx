@@ -54,7 +54,7 @@ export const Link = connect<void, {}, LinkProps>(
   null,
   (dispatch: Dispatch<any>, props: LinkProps): any => {
     return {
-      push: (pathname) => dispatch(push(pathname)),
+      push: (pathname: string) => dispatch(push(pathname)),
     };
   },
 )(LinkBase);
