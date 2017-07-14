@@ -1,8 +1,12 @@
 {
   "name": "redux-hist",
   "version": "0.0.1",
-  "description": "Middlewares / Actions / Reducers for Redux around History API.",
+  "description": "Middlewares / Actions / Reducers / Router for Redux around History API.",
   "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
   "directories": {
     "test": "test"
   },
@@ -30,6 +34,10 @@
     "url": "https://github.com/minodisk/redux-hist/issues"
   },
   "homepage": "https://github.com/minodisk/redux-hist/tree/master/packages/redux-hist#readme",
+  "dependencies": {
+    "path-to-regexp": "^1.7.0",
+    "redux-actions": "^2.2.1"
+  },
   "devDependencies": {
     "@types/history": "^4.6.0",
     "@types/mocha": "^2.2.41",
@@ -41,9 +49,5 @@
     "power-assert": "^1.4.4",
     "tslint": "^5.5.0",
     "typescript": "^2.4.1"
-  },
-  "dependencies": {
-    "path-to-regexp": "^1.7.0",
-    "redux-actions": "^2.2.1"
   }
 }
