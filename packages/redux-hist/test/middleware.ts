@@ -25,19 +25,21 @@ import {
   HISTORY_REPLACE,
   HISTORY_REPLACED,
   LocationAction,
+  POP,
   push,
+  PUSH,
   replace,
+  REPLACE,
   ROUTE_FOUND,
   ROUTE_NOT_FOUND,
-  RouteAction,
   Router,
-} from "redux-router";
+} from "../lib";
 
 describe("createRouterMiddleware", () => {
 
   it("should subscribe router action and publish valid action", () => {
     const router = new Router();
-    router.route("/users/:user_id");
+    const key = router.route("/users/:user_id");
     const history = createMemoryHistory();
     const dispatch = 0;
     const next = 1;
@@ -52,7 +54,7 @@ describe("createRouterMiddleware", () => {
         action: {
           type: ROUTE_NOT_FOUND,
           payload: {
-            action: "PUSH",
+            action: PUSH,
           },
         },
       },
@@ -87,7 +89,7 @@ describe("createRouterMiddleware", () => {
         action: {
           type: ROUTE_NOT_FOUND,
           payload: {
-            action: "PUSH",
+            action: PUSH,
           },
         },
       },
@@ -122,7 +124,8 @@ describe("createRouterMiddleware", () => {
         action: {
           type: ROUTE_FOUND,
           payload: {
-            action: "PUSH",
+            action: PUSH,
+            key,
             params: {
               user_id: "100",
             },
@@ -156,7 +159,7 @@ describe("createRouterMiddleware", () => {
         action: {
           type: ROUTE_NOT_FOUND,
           payload: {
-            action: "POP",
+            action: POP,
           },
         },
       },
@@ -187,7 +190,8 @@ describe("createRouterMiddleware", () => {
         action: {
           type: ROUTE_FOUND,
           payload: {
-            action: "POP",
+            action: POP,
+            key,
             params: {
               user_id: "100",
             },
@@ -222,7 +226,7 @@ describe("createRouterMiddleware", () => {
         action: {
           type: ROUTE_NOT_FOUND,
           payload: {
-            action: "POP",
+            action: POP,
           },
         },
       },
@@ -254,7 +258,8 @@ describe("createRouterMiddleware", () => {
         action: {
           type: ROUTE_FOUND,
           payload: {
-            action: "POP",
+            action: POP,
+            key,
             params: {
               user_id: "100",
             },
@@ -292,7 +297,8 @@ describe("createRouterMiddleware", () => {
         action: {
           type: ROUTE_FOUND,
           payload: {
-            action: "REPLACE",
+            action: REPLACE,
+            key,
             params: {
               user_id: "200",
             },
@@ -330,7 +336,7 @@ describe("createRouterMiddleware", () => {
         action: {
           type: ROUTE_NOT_FOUND,
           payload: {
-            action: "REPLACE",
+            action: REPLACE,
           },
         },
       },
@@ -365,7 +371,8 @@ describe("createRouterMiddleware", () => {
         action: {
           type: ROUTE_FOUND,
           payload: {
-            action: "REPLACE",
+            action: REPLACE,
+            key,
             params: {
               user_id: "300",
             },
@@ -403,7 +410,7 @@ describe("createRouterMiddleware", () => {
       {
         destinationAction: push("/users"),
         length: 2,
-        action: "PUSH",
+        action: PUSH,
         index: 1,
         pathname: "/users",
         state: undefined,
@@ -411,7 +418,7 @@ describe("createRouterMiddleware", () => {
       {
         destinationAction: push("/users/100"),
         length: 3,
-        action: "PUSH",
+        action: PUSH,
         index: 2,
         pathname: "/users/100",
         state: undefined,
@@ -419,7 +426,7 @@ describe("createRouterMiddleware", () => {
       {
         destinationAction: back(),
         length: 3,
-        action: "POP",
+        action: POP,
         index: 1,
         pathname: "/users",
         state: undefined,
@@ -427,7 +434,7 @@ describe("createRouterMiddleware", () => {
       {
         destinationAction: forward(),
         length: 3,
-        action: "POP",
+        action: POP,
         index: 2,
         pathname: "/users/100",
         state: undefined,
@@ -435,7 +442,7 @@ describe("createRouterMiddleware", () => {
       {
         destinationAction: go(-2),
         length: 3,
-        action: "POP",
+        action: POP,
         index:  0,
         pathname: "/",
         state: undefined,
@@ -443,7 +450,7 @@ describe("createRouterMiddleware", () => {
       {
         destinationAction: go(2),
         length: 3,
-        action: "POP",
+        action: POP,
         index:  2,
         pathname: "/users/100",
         state: undefined,
@@ -451,7 +458,7 @@ describe("createRouterMiddleware", () => {
       {
         destinationAction: replace("/users/200"),
         length: 3,
-        action: "REPLACE",
+        action: REPLACE,
         index:  2,
         pathname: "/users/200",
         state: undefined,
@@ -459,7 +466,7 @@ describe("createRouterMiddleware", () => {
       {
         destinationAction: replace("/users"),
         length: 3,
-        action: "REPLACE",
+        action: REPLACE,
         index:  2,
         pathname: "/users",
         state: undefined,
@@ -467,7 +474,7 @@ describe("createRouterMiddleware", () => {
       {
         destinationAction: replace("/users/300"),
         length: 3,
-        action: "REPLACE",
+        action: REPLACE,
         index:  2,
         pathname: "/users/300",
         state: undefined,
@@ -505,7 +512,7 @@ describe("createStaticRouterMiddleware", () => {
         action: {
           type: ROUTE_NOT_FOUND,
           payload: {
-            action: "PUSH",
+            action: PUSH,
           },
         },
       },
@@ -530,7 +537,7 @@ describe("createStaticRouterMiddleware", () => {
 
   it("should execute routing once and publish found action", () => {
     const router = new Router();
-    router.route("/users/:user_id");
+    const key = router.route("/users/:user_id");
     const cases: Array<{
       message: string,
       action: Actions,
@@ -540,7 +547,8 @@ describe("createStaticRouterMiddleware", () => {
         action: {
           type: ROUTE_FOUND,
           payload: {
-            action: "PUSH",
+            action: PUSH,
+            key,
             params: {
               user_id: "100",
             },

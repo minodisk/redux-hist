@@ -24,7 +24,7 @@ import {
   poped,
   pushed,
   replaced,
-  RouteAction,
+  RoutingAction,
 } from "./action";
 import {Router} from "./router";
 
@@ -35,7 +35,7 @@ export const REPLACE: Action = "REPLACE";
 export function createRouterMiddleware(router: Router, history: History): Middleware {
   return ({dispatch}) => {
     // Publish routing result action for initial Location.
-    dispatch(router.run(PUSH, history.location.pathname));
+    dispatch(router.exec(PUSH, history.location.pathname));
 
     // 1. Subscribe history event from history API.
     // 2. Detect publishing POP / PUSH / REPLACE event from history API.
@@ -45,15 +45,15 @@ export function createRouterMiddleware(router: Router, history: History): Middle
       switch (action) {
         case POP:
           dispatch(poped(location));
-          dispatch(router.run(POP, location.pathname));
+          dispatch(router.exec(POP, location.pathname));
           return;
         case PUSH:
           dispatch(pushed(location));
-          dispatch(router.run(PUSH, location.pathname));
+          dispatch(router.exec(PUSH, location.pathname));
           return;
         case REPLACE:
           dispatch(replaced(location));
-          dispatch(router.run(REPLACE, location.pathname));
+          dispatch(router.exec(REPLACE, location.pathname));
           return;
       }
     });
@@ -111,7 +111,7 @@ export function createRouterMiddleware(router: Router, history: History): Middle
 export function createStaticRouterMiddleware(router: Router, pathname: string): Middleware {
   return ({dispatch}) => {
     // Publish routing result action for static location.
-    dispatch(router.run(PUSH, pathname));
+    dispatch(router.exec(PUSH, pathname));
     return (next) => {
       return (action) => {
         return next(action);

@@ -35,8 +35,9 @@ export interface Params {
   [name: string]: string;
 }
 
-export interface Route {
+export interface Routing {
   action: HistoryAction;
+  key?: string;
   params?: Params;
 }
 
@@ -45,9 +46,9 @@ export type NumberAction = Action<number>;
 export type OperatingAction = DestinationAction | NumberAction;
 
 export type LocationAction = Action<Location>;
-export type RouteAction = Action<Route>;
+export type RoutingAction = Action<Routing>;
 
-export type Actions = OperatingAction | LocationAction | RouteAction;
+export type Actions = OperatingAction | LocationAction | RoutingAction;
 
 const push1 = createAction<Destination, Path>(HISTORY_PUSH, combineDestination);
 const push2 = createAction<Destination, Path, LocationState>(HISTORY_PUSH, combineDestination);
@@ -73,9 +74,15 @@ export const poped =  createAction<Location>(HISTORY_POPED);
 export const pushed =  createAction<Location>(HISTORY_PUSHED);
 export const replaced =  createAction<Location>(HISTORY_REPLACED);
 
-export const found = createAction<Route, HistoryAction, Params>(ROUTE_FOUND, (action, params) => {
-  return {action, params};
-});
-export const notFound = createAction<Route, HistoryAction>(ROUTE_NOT_FOUND, (action) => {
-  return {action};
-});
+export const found = createAction<Routing, HistoryAction, string, Params>(
+  ROUTE_FOUND,
+  (action, key, params): Routing => {
+    return {action, key, params};
+  },
+);
+export const notFound = createAction<Routing, HistoryAction>(
+  ROUTE_NOT_FOUND,
+  (action): Routing => {
+    return {action};
+  },
+);

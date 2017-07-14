@@ -9,12 +9,13 @@ import {
   found,
   notFound,
   Params,
-  RouteAction,
+  RoutingAction,
 } from "./action";
 
 export interface Args {
-  keys: pathToRegexp.Key[];
+  key: string;
   regexp: RegExp;
+  keys: pathToRegexp.Key[];
 }
 
 export class Router {
@@ -24,17 +25,17 @@ export class Router {
     this.mapper = {};
   }
 
-  public route(path: pathToRegexp.Path): void {
+  public route(path: pathToRegexp.Path): string {
     const keys: pathToRegexp.Key[] = [];
-    this.mapper[path.toString()] = {
-      keys,
-      regexp: pathToRegexp(path, keys),
-    };
+    const regexp = pathToRegexp(path, keys);
+    const key = regexp.toString();
+    this.mapper[path.toString()] = {key, regexp, keys};
+    return key;
   }
 
-  public run(action: Action, location: Pathname): RouteAction {
+  public exec(action: Action, location: Pathname): RoutingAction {
     for (const path of Object.keys(this.mapper)) {
-      const {keys, regexp} = this.mapper[path];
+      const {key, regexp, keys} = this.mapper[path];
       const values = regexp.exec(location);
       if (values == null) {
         continue;
@@ -43,7 +44,7 @@ export class Router {
       for (let i = 0; i < keys.length; i++) {
         params[keys[i].name] = values[i + 1];
       }
-      return found(action, params);
+      return found(action, key, params);
     }
     return notFound(action);
   }

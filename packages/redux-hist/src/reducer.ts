@@ -1,11 +1,11 @@
 import {
-  Route,
   ROUTE_FOUND,
   ROUTE_NOT_FOUND,
-  RouteAction,
+  Routing,
+  RoutingAction,
 } from "./action";
 
-export function reduceRouting(state: any = {}, action: RouteAction): Route {
+export function reduceRouting(state: any = {}, action: RoutingAction): Routing {
   switch (action.type) {
     case ROUTE_FOUND:
     case ROUTE_NOT_FOUND:

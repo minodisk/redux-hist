@@ -18,8 +18,7 @@ import {
   REPLACE,
   ROUTE_FOUND,
   ROUTE_NOT_FOUND,
-  RouteAction,
-} from "redux-router";
+} from "../lib";
 
 describe("found", () => {
   it("should return ROUTE_FOUND action", () => {
@@ -27,11 +26,13 @@ describe("found", () => {
       {
         message: "POP with empty params",
         action: POP,
+        key: "0",
         params: {},
         want: {
           type: ROUTE_FOUND,
           payload: {
             action: POP,
+            key: "0",
             params: {},
           },
         },
@@ -39,6 +40,7 @@ describe("found", () => {
       {
         message: "POP with params",
         action: POP,
+        key: "1",
         params: {
           user_id: "100",
         },
@@ -46,6 +48,7 @@ describe("found", () => {
           type: ROUTE_FOUND,
           payload: {
             action: POP,
+            key: "1",
             params: {
               user_id: "100",
             },
@@ -55,11 +58,13 @@ describe("found", () => {
       {
         message: "PUSH with empty params",
         action: PUSH,
+        key: "2",
         params: {},
         want: {
           type: ROUTE_FOUND,
           payload: {
             action: PUSH,
+            key: "2",
             params: {},
           },
         },
@@ -67,6 +72,7 @@ describe("found", () => {
       {
         message: "PUSH with params",
         action: PUSH,
+        key: "3",
         params: {
           user_id: "100",
         },
@@ -74,6 +80,7 @@ describe("found", () => {
           type: ROUTE_FOUND,
           payload: {
             action: PUSH,
+            key: "3",
             params: {
               user_id: "100",
             },
@@ -83,11 +90,13 @@ describe("found", () => {
       {
         message: "REPLACE with empty params",
         action: REPLACE,
+        key: "4",
         params: {},
         want: {
           type: ROUTE_FOUND,
           payload: {
             action: REPLACE,
+            key: "4",
             params: {},
           },
         },
@@ -95,6 +104,7 @@ describe("found", () => {
       {
         message: "REPLACE with params",
         action: REPLACE,
+        key: "5",
         params: {
           user_id: "100",
         },
@@ -102,6 +112,7 @@ describe("found", () => {
           type: ROUTE_FOUND,
           payload: {
             action: REPLACE,
+            key: "5",
             params: {
               user_id: "100",
             },
@@ -109,7 +120,7 @@ describe("found", () => {
         },
       },
     ]) {
-      const got = found(c.action, c.params);
+      const got = found(c.action, c.key, c.params);
       deepStrictEqual(got, c.want, c.message);
     }
   });
