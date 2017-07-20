@@ -9,15 +9,18 @@ import {
   createAction,
 } from "redux-actions";
 
+import {
+  Params,
+  Result,
+} from "./router";
+
 export const HISTORY_PUSH = "HISTORY_PUSH";
 export const HISTORY_REPLACE = "HISTORY_REPLACE";
 export const HISTORY_GO = "HISTORY_GO";
 export const HISTORY_BACK = "HISTORY_BACK";
 export const HISTORY_FORWARD = "HISTORY_FORWARD";
 
-export const HISTORY_POPED = "HISTORY_POPED";
-export const HISTORY_PUSHED = "HISTORY_PUSHED";
-export const HISTORY_REPLACED = "HISTORY_REPLACED";
+export const HISTORY_CHANGED = "HISTORY_CHANGED";
 
 export const ROUTE_FOUND = "ROUTE_FOUND";
 export const ROUTE_NOT_FOUND = "ROUTE_NOT_FOUND";
@@ -31,24 +34,24 @@ function combineDestination(path: Path, state?: LocationState): Destination {
   return {path, state};
 }
 
-export interface Params {
-  [name: string]: string;
-}
-
 export interface Routing {
   action: HistoryAction;
-  key?: string;
-  params?: Params;
+  result?: Result;
+}
+
+export interface History {
+  action: HistoryAction;
+  entries: Array<Location>;
+  index: number;
+  length: number;
+  location: Location;
 }
 
 export type DestinationAction = Action<Destination>;
 export type NumberAction = Action<number>;
 export type OperatingAction = DestinationAction | NumberAction;
-
-export type LocationAction = Action<Location>;
+export type HistoryAction = Action<History>;
 export type RoutingAction = Action<Routing>;
-
-export type Actions = OperatingAction | LocationAction | RoutingAction;
 
 const push1 = createAction<Destination, Path>(HISTORY_PUSH, combineDestination);
 const push2 = createAction<Destination, Path, LocationState>(HISTORY_PUSH, combineDestination);
@@ -70,14 +73,12 @@ export const go = createAction<number>(HISTORY_GO);
 export const back = createAction(HISTORY_BACK);
 export const forward = createAction(HISTORY_FORWARD);
 
-export const poped =  createAction<Location>(HISTORY_POPED);
-export const pushed =  createAction<Location>(HISTORY_PUSHED);
-export const replaced =  createAction<Location>(HISTORY_REPLACED);
+export const changed = createAction<History>(HISTORY_CHANGED);
 
-export const found = createAction<Routing, HistoryAction, string, Params>(
+export const found = createAction<Routing, HistoryAction, Result>(
   ROUTE_FOUND,
-  (action, key, params): Routing => {
-    return {action, key, params};
+  (action, result): Routing => {
+    return {action, result};
   },
 );
 export const notFound = createAction<Routing, HistoryAction>(

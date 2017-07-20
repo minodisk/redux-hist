@@ -1,9 +1,21 @@
 import {
+  History,
+  HISTORY_CHANGED,
+  HistoryAction,
   ROUTE_FOUND,
   ROUTE_NOT_FOUND,
   Routing,
   RoutingAction,
 } from "./action";
+
+export function reduceHistory(state: any = {}, action: HistoryAction): History {
+  switch (action.type) {
+    case HISTORY_CHANGED:
+      return action.payload;
+    default:
+      return state;
+  }
+}
 
 export function reduceRouting(state: any = {}, action: RoutingAction): Routing {
   switch (action.type) {

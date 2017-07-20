@@ -8,22 +8,19 @@ import {
   MiddlewareAPI,
 } from "redux";
 import {
-  Actions,
+  changed,
   DestinationAction,
+  found,
   HISTORY_BACK,
+  HISTORY_CHANGED,
   HISTORY_FORWARD,
   HISTORY_GO,
-  HISTORY_POPED,
   HISTORY_PUSH,
-  HISTORY_PUSHED,
   HISTORY_REPLACE,
-  HISTORY_REPLACED,
-  LocationAction,
+  HistoryAction,
+  notFound,
   NumberAction,
   OperatingAction,
-  poped,
-  pushed,
-  replaced,
   RoutingAction,
 } from "./action";
 import {Router} from "./router";
@@ -35,27 +32,22 @@ export const REPLACE: Action = "REPLACE";
 export function createRouterMiddleware(router: Router, history: History): Middleware {
   return ({dispatch}) => {
     // Publish routing result action for initial Location.
-    dispatch(router.exec(PUSH, history.location.pathname));
+    dispatchRoutingResult(router, dispatch, history.location.pathname, PUSH);
 
     // 1. Subscribe history event from history API.
     // 2. Detect publishing POP / PUSH / REPLACE event from history API.
-    // 3. Publish LocationAction representing the current Location state.
+    // 3. Publish HistoryAction representing the current History.
     // 4. Publish routing result action for the Location.
     history.listen((location, action) => {
-      switch (action) {
-        case POP:
-          dispatch(poped(location));
-          dispatch(router.exec(POP, location.pathname));
-          return;
-        case PUSH:
-          dispatch(pushed(location));
-          dispatch(router.exec(PUSH, location.pathname));
-          return;
-        case REPLACE:
-          dispatch(replaced(location));
-          dispatch(router.exec(REPLACE, location.pathname));
-          return;
-      }
+      dispatch(changed({
+        action: history.action,
+        entries: (history as any).entries, // history.d.ts is deficient
+        index: (history as any).index, // history.d.ts is deficient
+        length: history.length,
+        location: history.location,
+      }));
+      dispatchRoutingResult(router, dispatch, location.pathname, action);
+      return;
     });
 
     return (next) => {
@@ -111,11 +103,16 @@ export function createRouterMiddleware(router: Router, history: History): Middle
 export function createStaticRouterMiddleware(router: Router, pathname: string): Middleware {
   return ({dispatch}) => {
     // Publish routing result action for static location.
-    dispatch(router.exec(PUSH, pathname));
+    dispatchRoutingResult(router, dispatch, pathname, PUSH);
     return (next) => {
       return (action) => {
         return next(action);
       };
     };
   };
+}
+
+function dispatchRoutingResult(router: Router, dispatch: Dispatch<RoutingAction>, pathname: string, action: Action) {
+  const result = router.exec(pathname);
+  dispatch((result == null) ? notFound(action) : found(action, result));
 }
