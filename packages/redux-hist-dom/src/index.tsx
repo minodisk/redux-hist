@@ -1,7 +1,7 @@
 import * as React from "react";
 import {connect} from "react-redux";
 import {Dispatch} from "redux";
-import {push} from "redux-router";
+import {push} from "redux-hist";
 
 export interface LinkProps {
   className?: string;

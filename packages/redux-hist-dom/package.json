@@ -1,6 +1,6 @@
 {
   "name": "redux-hist-dom",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Components for Redux around History API.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -37,12 +37,13 @@
   "dependencies": {
     "react": "^15.6.1",
     "react-redux": "^5.0.5",
-    "redux-router": "^2.1.2"
+    "redux-hist": "0.0.3"
   },
   "devDependencies": {
+    "@types/history": "^4.6.0",
     "@types/react": "^15.0.38",
     "@types/react-redux": "^4.4.46",
-    "@types/redux-router": "^1.0.40",
+    "@types/redux-actions": "^1.2.6",
     "typescript": "^2.4.1"
   }
 }
