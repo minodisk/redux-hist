@@ -1,7 +1,7 @@
 {
   "name": "redux-hist-dom",
-  "version": "0.0.2",
-  "description": "Component for Redux around History API.",
+  "version": "0.0.3",
+  "description": "Components for Redux around History API.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -13,8 +13,8 @@
   "scripts": {
     "lint": "./node_modules/.bin/tslint ./src/*.tsx ./test/*.tsx",
     "build": "rm -rf ./lib && ./node_modules/.bin/tsc -p .",
-    "test": "npm run build && rm -rf ./test-dist && ./node_modules/.bin/tsc --outDir ./test-dist ./test/*.tsx && ./node_modules/.bin/mocha ./test-dist/*.js && rm -rf ./test-dist",
-    "release": "npm run lint && npm test && npm publish"
+    "test": "rm -rf ./test-dist && ./node_modules/.bin/tsc --outDir ./test-dist ./test/*.tsx && ./node_modules/.bin/mocha ./test-dist/*.js && rm -rf ./test-dist",
+    "release": "npm run lint && npm run build && npm test && npm publish"
   },
   "repository": {
     "type": "git",

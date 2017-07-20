@@ -5,21 +5,22 @@ import {push} from "redux-router";
 
 export interface LinkProps {
   className?: string;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  push?: (pathname: string) => void;
   style?: any;
   target?: string;
-  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   to: string;
-  push: (pathname: string) => void;
 }
 
 class LinkBase extends React.Component<LinkProps, {}> {
   public render() {
     return (
       <a
-        onClick={this.onClick}
-        href={this.props.to}
         className={this.props.className}
+        onClick={this.onClick}
         style={this.props.style}
+        target={this.props.target}
+        href={this.props.to}
       >
         {
           this.props.children
