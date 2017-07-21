@@ -48,8 +48,8 @@ export interface History {
 }
 
 export type DestinationAction = Action<Destination>;
-export type NumberAction = Action<number>;
-export type OperatingAction = DestinationAction | NumberAction;
+export type DiffAction = Action<number>;
+export type ChangeAction = DestinationAction | DiffAction;
 export type HistoryAction = Action<History>;
 export type RoutingAction = Action<Routing>;
 

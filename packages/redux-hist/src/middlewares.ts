@@ -11,6 +11,7 @@ import {
 import {
   changed,
   DestinationAction,
+  DiffAction,
   found,
   HISTORY_BACK,
   HISTORY_CHANGED,
@@ -20,8 +21,6 @@ import {
   HISTORY_REPLACE,
   HistoryAction,
   notFound,
-  NumberAction,
-  OperatingAction,
   RoutingAction,
 } from "./actions";
 import {Router} from "./router";
@@ -53,7 +52,7 @@ export function createRouterMiddleware(router: Router, history: History): Middle
 
     return (next) => {
       return (action) => {
-        // 1. Detect OperatingAction from outside system.
+        // 1. Detect ChangeAction from outside system.
         // 2. Pass the action to the next callback.
         // 3. Operate History API.
         // 4. Return the result of the next callback.
@@ -70,7 +69,7 @@ export function createRouterMiddleware(router: Router, history: History): Middle
           }
           case HISTORY_GO: {
             const result = next(action);
-            history.go((action as NumberAction).payload);
+            history.go((action as DiffAction).payload);
             return result;
           }
           case HISTORY_PUSH: {

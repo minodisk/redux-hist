@@ -10,6 +10,7 @@ import {
 import {Action} from "redux-actions";
 import {
   back,
+  ChangeAction,
   changed,
   createRouterMiddleware,
   createStaticRouterMiddleware,
@@ -23,7 +24,6 @@ import {
   HISTORY_PUSH,
   HISTORY_REPLACE,
   HistoryAction,
-  OperatingAction,
   POP,
   push,
   PUSH,
@@ -48,7 +48,7 @@ describe("middleware", () => {
       const cases: Array<{
         message: string,
         publishWith: number,
-        action: OperatingAction | HistoryAction | RoutingAction,
+        action: ChangeAction | HistoryAction | RoutingAction,
       }> = [
         {
           message: "router can not find routing to initial location",
@@ -444,7 +444,7 @@ describe("middleware", () => {
           return {};
         },
         dispatch: (action) => {
-          const a = action as (OperatingAction | HistoryAction | RoutingAction);
+          const a = action as (ChangeAction | HistoryAction | RoutingAction);
           const c = cases[i];
           if (a.type === HISTORY_CHANGED) {
             (c.action as HistoryAction).payload.entries = (a as HistoryAction).payload.entries;
@@ -564,7 +564,7 @@ describe("middleware", () => {
       router.route("/users/:user_id");
       const cases: Array<{
         message: string,
-        action: OperatingAction | HistoryAction | RoutingAction,
+        action: ChangeAction | HistoryAction | RoutingAction,
       }> = [
         {
           message: "router can not find routing for /users",
@@ -599,7 +599,7 @@ describe("middleware", () => {
       const key = router.route("/users/:user_id");
       const cases: Array<{
         message: string,
-        action: OperatingAction | HistoryAction | RoutingAction,
+        action: ChangeAction | HistoryAction | RoutingAction,
       }> = [
         {
           message: "router can find routing for /users/100",
