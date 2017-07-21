@@ -1,5 +1,5 @@
 {
-  "name": "redux-hist-dom",
+  "name": "redux-hist-react",
   "version": "0.0.4",
   "description": "Components for Redux around History API.",
   "main": "lib/index.js",
@@ -33,7 +33,7 @@
   "bugs": {
     "url": "https://github.com/minodisk/redux-hist/issues"
   },
-  "homepage": "https://github.com/minodisk/redux-hist/tree/master/packages/redux-hist-dom#readme",
+  "homepage": "https://github.com/minodisk/redux-hist/tree/master/packages/redux-hist-react#readme",
   "dependencies": {
     "react": "^15.6.1",
     "react-redux": "^5.0.5",
