@@ -7,6 +7,7 @@ import {
   Middleware,
   MiddlewareAPI,
 } from "redux";
+
 import {
   changed,
   DestinationAction,
@@ -22,7 +23,7 @@ import {
   NumberAction,
   OperatingAction,
   RoutingAction,
-} from "./action";
+} from "./actions";
 import {Router} from "./router";
 
 export const POP: Action = "POP";

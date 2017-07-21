@@ -1,6 +1,12 @@
-# redux-hist
+# History for Redux
 
-This library provides parts for manipulating history and reflecting the state of location on store.
+This library provides methods for manipulating history and reflecting the state of history on store along Redux data flow.
 
-- [redux-hist](packages/redux-hist): Middlewares / Actions / Reducers / Router
-- [redux-hist-dom](packages/redux-hist-dom): React Components
+- [redux-hist](packages/redux-hist)
+  - Actions
+  - Middlewares
+  - Reducers
+  - Router
+  - Types for Component Props
+- [redux-hist-react](packages/redux-hist-react)
+  - React Components

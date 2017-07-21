@@ -1,7 +1,7 @@
 {
   "name": "redux-hist-react",
-  "version": "0.0.4",
-  "description": "Components for Redux around History API.",
+  "version": "0.0.6",
+  "description": "React Components / Types for Component Props for Redux around History API.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -37,13 +37,15 @@
   "dependencies": {
     "react": "^15.6.1",
     "react-redux": "^5.0.5",
-    "redux-hist": "0.0.3"
+    "redux-hist": "0.0.6"
   },
   "devDependencies": {
     "@types/history": "^4.6.0",
+    "@types/mocha": "^2.2.41",
     "@types/react": "^15.0.38",
     "@types/react-redux": "^4.4.46",
     "@types/redux-actions": "^1.2.6",
+    "mocha": "^3.4.2",
     "typescript": "^2.4.1"
   }
 }
