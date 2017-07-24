@@ -1,4 +1,4 @@
-# redux-hist
+# redux-hist [ ![Codeship Status for minodisk/redux-hist](https://app.codeship.com/projects/23e9f670-5087-0135-ac0e-1e8ed79b5a90/status?branch=master)](https://app.codeship.com/projects/234381) [![codecov](https://codecov.io/gh/minodisk/redux-hist/branch/master/graph/badge.svg)](https://codecov.io/gh/minodisk/redux-hist)
 
 ## Actions
 
