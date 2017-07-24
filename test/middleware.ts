@@ -556,9 +556,32 @@ describe("middleware", () => {
 
       strictEqual(i, cases.length);
     });
+
+    it("should do nothing when unrelated action is passed", () => {
+      const router = new Router();
+      const history = createMemoryHistory();
+      const act = createRouterMiddleware(router, history)({
+        getState: () => {
+          return {};
+        },
+        dispatch: (action) => action,
+      })(
+        (action) => {
+          deepStrictEqual(action, {
+            type: "unrelated",
+          });
+          return action;
+        },
+      );
+      act({
+        type: "unrelated",
+      });
+    });
+
   });
 
   describe("createStaticRouterMiddleware()", () => {
+
     it("should execute routing once and publish not found action", () => {
       const router = new Router();
       router.route("/users/:user_id");
@@ -634,6 +657,28 @@ describe("middleware", () => {
       );
       strictEqual(cases.length, 0);
     });
+
+    it("should do nothing when unrelated action is passed", () => {
+      const router = new Router();
+      const history = createMemoryHistory();
+      const act = createStaticRouterMiddleware(router, "/")({
+        getState: () => {
+          return {};
+        },
+        dispatch: (action) => action,
+      })(
+        (action) => {
+          deepStrictEqual(action, {
+            type: "unrelated",
+          });
+          return action;
+        },
+      );
+      act({
+        type: "unrelated",
+      });
+    });
+
   });
 
 });
