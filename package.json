@@ -36,7 +36,7 @@
   "bugs": {
     "url": "https://github.com/minodisk/redux-hist/issues"
   },
-  "homepage": "https://github.com/minodisk/redux-hist/tree/master/packages/redux-hist#readme",
+  "homepage": "https://github.com/minodisk/redux-hist#readme",
   "dependencies": {
     "path-to-regexp": "^1.7.0",
     "redux-actions": "^2.2.1"
