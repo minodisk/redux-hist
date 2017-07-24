@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
+    "outDir": "./lib",
+    "sourceMap": true,
+    "declaration": true,
     "target": "es6",
     "module": "commonjs",
     "moduleResolution": "node",
-    "noImplicitAny": true,
-    "declaration": true,
-    "outDir": "./lib",
-    "jsx": "react"
+    "noImplicitAny": true
   },
   "include": [
-    "src/**/*.tsx"
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules"

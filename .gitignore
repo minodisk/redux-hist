@@ -59,3 +59,7 @@ typings/
 
 # Build
 lib
+
+# Credential files
+*.aes
+*.env

@@ -1,12 +1,28 @@
-# History for Redux
+# redux-hist
 
-This library provides methods for manipulating history and reflecting the state of history on store along Redux data flow.
+## Actions
 
-- [redux-hist](packages/redux-hist)
-  - Actions
-  - Middlewares
-  - Reducers
-  - Router
-  - Types for Component Props
-- [redux-hist-react](packages/redux-hist-react)
-  - React Components
+- `push(path: history.Path, state?: history.LocationState): ReduxActions.Action<{path: history.Path, state?: history.LocationState}>`
+- `replace(path: history.Path, state?: history.LocationState): ReduxActions.Action<{path: history.Path, state?: history.LocationState}>`
+- `go(diff: number): ReduxActions.Action<number>`
+- `back(): ReduxActions.Action<void>`
+- `forward(): ReduxActions.Action<void>`
+
+## Middlewares
+
+- `createRouterMiddleware(router: Router, history: history.History): Redux.Middleware`
+- `createStaticRouterMiddleware(router: Router, pathname: string): Redux.Middleware`
+
+## Props
+
+## Reducers
+
+- `reduceHistory(state: History, action: HistoryAction): History`
+- `reduceRouting(state: Routing, action: HistoryAction): Routing`
+
+## Router
+
+- `class Router`
+  - `constructor()`
+  - `router(path: pathToRegexp.Path): Key`
+  - `exec(location: Pathname): Result`

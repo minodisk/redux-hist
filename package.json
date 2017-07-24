@@ -12,9 +12,11 @@
   },
   "scripts": {
     "lint": "./node_modules/.bin/tslint ./src/*.ts ./test/*.ts",
-    "build": "rm -rf ./lib && ./node_modules/.bin/tsc -p .",
-    "test": "rm -rf ./test-dist && ./node_modules/.bin/tsc --outDir ./test-dist ./test/*.ts && ./node_modules/.bin/mocha ./test-dist/*.js && rm -rf ./test-dist",
-    "release": "npm run lint && npm run build && npm test && npm publish"
+    "build": "./node_modules/.bin/tsc -p .",
+    "pretest": "./node_modules/.bin/tsc --outDir ./test-dist ./test/*.ts",
+    "test": "./node_modules/.bin/nyc ./node_modules/.bin/mocha ./test-dist/*.js",
+    "posttest": "nyc report --reporter=json && codecov -f coverage/*.json",
+    "prepublishOnly": "npm run lint && npm run build && npm test"
   },
   "repository": {
     "type": "git",
@@ -44,8 +46,10 @@
     "@types/power-assert": "^1.4.29",
     "@types/redux": "^3.6.0",
     "@types/redux-actions": "^1.2.6",
+    "codecov": "^2.2.0",
     "history": "^4.6.3",
     "mocha": "^3.4.2",
+    "nyc": "^11.0.3",
     "power-assert": "^1.4.4",
     "tslint": "^5.5.0",
     "typescript": "^2.4.1"

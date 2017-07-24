@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+
+  redux-hist:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    encrypted_env_file: secret.env.encrypted
+    cached: true
