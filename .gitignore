@@ -57,8 +57,9 @@ typings/
 # dotenv environment variables file
 .env
 
-# Build
+# Built files
 lib
+test-dist
 
 # Credential files
 *.aes
