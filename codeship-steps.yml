@@ -1,9 +1,9 @@
 - type: parallel
   steps:
-    - name: Lint redux-hist
+    - name: Lint
       service: redux-hist
       command: npm run lint
-    - name: Test redux-hist
+    - name: Test
       service: redux-hist
       command: npm test
 - type: parallel
