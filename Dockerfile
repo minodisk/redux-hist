@@ -1,10 +1,14 @@
-FROM node:8.1.4
+FROM node:8.2.1-alpine
+
+RUN apk add --update \
+      git
 
 WORKDIR /redux-hist
-COPY ./package.json ./package-lock.json ./
+COPY package.json package-lock.json ./
 RUN npm install
-COPY ./src/ ./test/ ./
-RUN ls -al
+COPY tsconfig.json tslint.json ./
+COPY src src
+COPY test test
 RUN npm run build
 
 CMD npm test
