@@ -15,8 +15,7 @@
     "build": "./node_modules/.bin/tsc -p .",
     "pretest": "./node_modules/.bin/tsc --outDir ./test-dist ./test/*.ts",
     "test": "./node_modules/.bin/nyc ./node_modules/.bin/mocha ./test-dist/*.js",
-    "posttest": "nyc report --reporter=json && if [ \"$CI\" = \"true\" ]; then codecov -f coverage/*.json; fi",
-    "prepublishOnly": "npm run lint && npm run build && npm test"
+    "posttest": "nyc report --reporter=json && if [ \"$CI\" = \"true\" ]; then codecov -f coverage/*.json; fi"
   },
   "repository": {
     "type": "git",

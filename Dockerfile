@@ -5,7 +5,8 @@ RUN apk add --update \
 
 WORKDIR /redux-hist
 COPY package.json package-lock.json ./
-RUN npm install
+ARG NPM_TOKEN
+RUN echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc && npm install
 COPY tsconfig.json tslint.json ./
 COPY src src
 COPY test test

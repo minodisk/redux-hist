@@ -6,3 +6,10 @@
     - name: Test
       service: redux-hist
       command: npm test
+
+- type: parallel
+  tag: ^\d+\.\d+\.\d+$
+  steps:
+    - name: Publish
+      service: redux-hist
+      command: npm publish --unsafe-perm
