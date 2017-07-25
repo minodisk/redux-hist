@@ -1,28 +1,36 @@
 # redux-hist [ ![Codeship Status for minodisk/redux-hist](https://app.codeship.com/projects/23e9f670-5087-0135-ac0e-1e8ed79b5a90/status?branch=master)](https://app.codeship.com/projects/234381) [![codecov](https://codecov.io/gh/minodisk/redux-hist/branch/master/graph/badge.svg)](https://codecov.io/gh/minodisk/redux-hist)
 
-## Actions
+Middlewares / Actions / Reducers for Redux around History API.
 
-- `push(path: history.Path, state?: history.LocationState): ReduxActions.Action<{path: history.Path, state?: history.LocationState}>`
-- `replace(path: history.Path, state?: history.LocationState): ReduxActions.Action<{path: history.Path, state?: history.LocationState}>`
-- `go(diff: number): ReduxActions.Action<number>`
-- `back(): ReduxActions.Action<void>`
-- `forward(): ReduxActions.Action<void>`
+## Usage
 
-## Middlewares
+## API Reference
 
-- `createRouterMiddleware(router: Router, history: history.History): Redux.Middleware`
-- `createStaticRouterMiddleware(router: Router, pathname: string): Redux.Middleware`
+### Actions
 
-## Props
+#### `push(path: history.Path, state?: history.LocationState): ReduxActions.Action<{path: history.Path, state?: history.LocationState}>`
+#### `replace(path: history.Path, state?: history.LocationState): ReduxActions.Action<{path: history.Path, state?: history.LocationState}>`
+#### `go(diff: number): ReduxActions.Action<number>`
+#### `goBack(): ReduxActions.Action<void>`
+#### `goForward(): ReduxActions.Action<void>`
 
-## Reducers
+### Middlewares
 
-- `reduceHistory(state: History, action: HistoryAction): History`
-- `reduceRouting(state: Routing, action: HistoryAction): Routing`
+#### `createRouterMiddleware(router: Router, history: history.History): Redux.Middleware`
+#### `createStaticRouterMiddleware(router: Router, pathname: string): Redux.Middleware`
 
-## Router
+### Reducers
 
-- `class Router`
-  - `constructor()`
-  - `router(path: pathToRegexp.Path): Key`
-  - `exec(location: Pathname): Result`
+#### `reduceHistory(state: History, action: HistoryAction): History`
+#### `reduceRouting(state: Routing, action: HistoryAction): Routing`
+
+### Router
+
+#### `class Router`
+##### `constructor()`
+##### `router(path: pathToRegexp.Path): Key`
+##### `exec(location: Pathname): Result`
+
+## Related package
+
+- [redux-hist-react](https://github.com/minodisk/redux-hist-react)

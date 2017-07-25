@@ -7,13 +7,13 @@ import {
 } from "power-assert";
 
 import {
-  back,
-  forward,
   found,
   go,
-  HISTORY_BACK,
-  HISTORY_FORWARD,
+  goBack,
+  goForward,
   HISTORY_GO,
+  HISTORY_GO_BACK,
+  HISTORY_GO_FORWARD,
   notFound,
   POP,
   push,
@@ -174,16 +174,16 @@ describe("action", () => {
 
   describe("back()", () => {
     it("should be called without argument", () => {
-      deepStrictEqual(back(), {
-        type: HISTORY_BACK,
+      deepStrictEqual(goBack(), {
+        type: HISTORY_GO_BACK,
       });
     });
   });
 
   describe("goForward()", () => {
     it("should be called without argument", () => {
-      deepStrictEqual(forward(), {
-        type: HISTORY_FORWARD,
+      deepStrictEqual(goForward(), {
+        type: HISTORY_GO_FORWARD,
       });
     });
   });

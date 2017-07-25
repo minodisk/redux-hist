@@ -13,10 +13,10 @@ import {
   DestinationAction,
   DiffAction,
   found,
-  HISTORY_BACK,
   HISTORY_CHANGED,
-  HISTORY_FORWARD,
   HISTORY_GO,
+  HISTORY_GO_BACK,
+  HISTORY_GO_FORWARD,
   HISTORY_PUSH,
   HISTORY_REPLACE,
   HistoryAction,
@@ -57,12 +57,12 @@ export function createRouterMiddleware(router: Router, history: History): Middle
         // 3. Operate History API.
         // 4. Return the result of the next callback.
         switch (action.type) {
-          case HISTORY_BACK: {
+          case HISTORY_GO_BACK: {
             const result = next(action);
             history.goBack();
             return result;
           }
-          case HISTORY_FORWARD: {
+          case HISTORY_GO_FORWARD: {
             const result = next(action);
             history.goForward();
             return result;

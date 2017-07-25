@@ -17,8 +17,8 @@ import {
 export const HISTORY_PUSH = "HISTORY_PUSH";
 export const HISTORY_REPLACE = "HISTORY_REPLACE";
 export const HISTORY_GO = "HISTORY_GO";
-export const HISTORY_BACK = "HISTORY_BACK";
-export const HISTORY_FORWARD = "HISTORY_FORWARD";
+export const HISTORY_GO_BACK = "HISTORY_GO_BACK";
+export const HISTORY_GO_FORWARD = "HISTORY_GO_FORWARD";
 
 export const HISTORY_CHANGED = "HISTORY_CHANGED";
 
@@ -70,8 +70,8 @@ export function replace(path: Path, state?: LocationState): DestinationAction {
   return replace2(path, state);
 }
 export const go = createAction<number>(HISTORY_GO);
-export const back = createAction(HISTORY_BACK);
-export const forward = createAction(HISTORY_FORWARD);
+export const goBack = createAction(HISTORY_GO_BACK);
+export const goForward = createAction(HISTORY_GO_FORWARD);
 
 export const changed = createAction<History>(HISTORY_CHANGED);
 
