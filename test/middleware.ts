@@ -9,18 +9,18 @@ import {
 } from "power-assert";
 import {Action} from "redux-actions";
 import {
-  back,
   ChangeAction,
   changed,
   createRouterMiddleware,
   createStaticRouterMiddleware,
   DestinationAction,
-  forward,
   go,
-  HISTORY_BACK,
+  goBack,
+  goForward,
   HISTORY_CHANGED,
-  HISTORY_FORWARD,
   HISTORY_GO,
+  HISTORY_GO_BACK,
+  HISTORY_GO_FORWARD,
   HISTORY_PUSH,
   HISTORY_REPLACE,
   HistoryAction,
@@ -150,7 +150,7 @@ describe("middleware", () => {
           message: "back to /users",
           publishWith: next,
           action: {
-            type: HISTORY_BACK,
+            type: HISTORY_GO_BACK,
           },
         },
         {
@@ -186,7 +186,7 @@ describe("middleware", () => {
           message: "forward to /users",
           publishWith: next,
           action: {
-            type: HISTORY_FORWARD,
+            type: HISTORY_GO_FORWARD,
           },
         },
         {
@@ -483,7 +483,7 @@ describe("middleware", () => {
           state: undefined,
         },
         {
-          destinationAction: back(),
+          destinationAction: goBack(),
           length: 3,
           action: POP,
           index: 1,
@@ -491,7 +491,7 @@ describe("middleware", () => {
           state: undefined,
         },
         {
-          destinationAction: forward(),
+          destinationAction: goForward(),
           length: 3,
           action: POP,
           index: 2,
