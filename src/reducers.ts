@@ -8,7 +8,7 @@ import {
   RoutingAction,
 } from "./actions";
 
-export function reduceHistory(state: History, action: HistoryAction): History {
+export function reduceHistory(state: any = {}, action: HistoryAction): History {
   switch (action.type) {
     case HISTORY_CHANGED:
       return action.payload;
@@ -17,7 +17,7 @@ export function reduceHistory(state: History, action: HistoryAction): History {
   }
 }
 
-export function reduceRouting(state: Routing, action: RoutingAction): Routing {
+export function reduceRouting(state: any = {}, action: RoutingAction): Routing {
   switch (action.type) {
     case ROUTE_FOUND:
     case ROUTE_NOT_FOUND:

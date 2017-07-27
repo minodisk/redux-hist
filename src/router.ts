@@ -21,23 +21,22 @@ export interface Result {
 }
 
 export class Router {
-  private mapper: {[path: string]: Args};
+  private routes: Array<Args>;
 
   constructor() {
-    this.mapper = {};
+    this.routes = [];
   }
 
   public route(path: pathToRegexp.Path): Key {
     const keys: Array<pathToRegexp.Key> = [];
     const regexp = pathToRegexp(path, keys);
     const key = regexp.toString();
-    this.mapper[path.toString()] = {key, regexp, keys};
+    this.routes.push({key, regexp, keys});
     return key;
   }
 
   public exec(location: Pathname): Result {
-    for (const path of Object.keys(this.mapper)) {
-      const {key, regexp, keys} = this.mapper[path];
+    for (const {key, regexp, keys} of this.routes) {
       const values = regexp.exec(location);
       if (values == null) {
         continue;

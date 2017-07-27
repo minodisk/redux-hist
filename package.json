@@ -1,6 +1,6 @@
 {
   "name": "redux-hist",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Middlewares / Actions / Reducers / Router for Redux around History API.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -25,9 +25,9 @@
     "history",
     "location",
     "redux",
+    "route",
     "router",
-    "routing",
-    "route"
+    "routing"
   ],
   "author": "Daisuke Mino",
   "license": "MIT",
