@@ -51,12 +51,31 @@ describe("middleware", () => {
         action: ChangeAction | HistoryAction | RoutingAction,
       }> = [
         {
+          message: "history action should be dispatched including initial location",
+          publishWith: dispatch,
+          action: {
+            type: HISTORY_CHANGED,
+            payload: {
+              action: POP,
+              index: 0,
+              length: 1,
+              location: {
+                key: "",
+                pathname: "/",
+                search: "",
+                hash: "",
+                state: undefined,
+              },
+            },
+          },
+        },
+        {
           message: "router can not find routing to initial location",
           publishWith: dispatch,
           action: {
             type: ROUTE_NOT_FOUND,
             payload: {
-              action: PUSH,
+              action: POP,
             },
           },
         },
