@@ -31,21 +31,17 @@ export const REPLACE: Action = "REPLACE";
 
 export function createRouterMiddleware(router: Router, history: History): Middleware {
   return ({dispatch}) => {
-    // Publish routing result action for initial Location.
-    dispatchRoutingResult(router, dispatch, history.location.pathname, PUSH);
+    // 1. Publish HistoryAction representing the initial History.
+    // 2. Publish routing result action for initial Location.
+    dispatchCurrentHistory(dispatch, history);
+    dispatchRoutingResult(router, dispatch, history.location.pathname, history.action);
 
     // 1. Subscribe history event from history API.
     // 2. Detect publishing POP / PUSH / REPLACE event from history API.
     // 3. Publish HistoryAction representing the current History.
     // 4. Publish routing result action for the Location.
     history.listen((location, action) => {
-      dispatch(changed({
-        action: history.action,
-        entries: (history as any).entries, // history.d.ts is deficient
-        index: (history as any).index, // history.d.ts is deficient
-        length: history.length,
-        location: history.location,
-      }));
+      dispatchCurrentHistory(dispatch, history);
       dispatchRoutingResult(router, dispatch, location.pathname, action);
       return;
     });
@@ -110,6 +106,16 @@ export function createStaticRouterMiddleware(router: Router, pathname: string): 
       };
     };
   };
+}
+
+function dispatchCurrentHistory(dispatch: Dispatch<HistoryAction>, history: History) {
+  dispatch(changed({
+    action: history.action,
+    entries: (history as any).entries, // history.d.ts is deficient
+    index: (history as any).index, // history.d.ts is deficient
+    length: history.length,
+    location: history.location,
+  }));
 }
 
 function dispatchRoutingResult(router: Router, dispatch: Dispatch<RoutingAction>, pathname: string, action: Action) {
