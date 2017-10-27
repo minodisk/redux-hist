@@ -1,124 +1,171 @@
-import {
-  Action,
-  History,
-} from "history";
-import {
-  Dispatch,
-  Middleware,
-  MiddlewareAPI,
-} from "redux";
+import { History, Location, LocationState } from "history";
+import { Action, Dispatch, Middleware, MiddlewareAPI, Store } from "redux";
 
 import {
   changed,
-  DestinationAction,
   DiffAction,
-  found,
-  HISTORY_CHANGED,
   HISTORY_GO,
   HISTORY_GO_BACK,
   HISTORY_GO_FORWARD,
   HISTORY_PUSH,
   HISTORY_REPLACE,
   HistoryAction,
-  notFound,
-  RoutingAction,
+  LOCATION_CHANGED,
+  LocationAction,
+  PathAction,
+  restore,
+  route,
+  RouteAction,
 } from "./actions";
-import {Router} from "./router";
+import { Router } from "./router";
 
-export const POP: Action = "POP";
-export const PUSH: Action = "PUSH";
-export const REPLACE: Action = "REPLACE";
-
-export function createRouterMiddleware(router: Router, history: History): Middleware {
-  return ({dispatch}) => {
-    // 1. Publish HistoryAction representing the initial History.
-    // 2. Publish routing result action for initial Location.
-    dispatchCurrentHistory(dispatch, history);
-    dispatchRoutingResult(router, dispatch, history.location.pathname, history.action);
-
-    // 1. Subscribe history event from history API.
-    // 2. Detect publishing POP / PUSH / REPLACE event from history API.
-    // 3. Publish HistoryAction representing the current History.
-    // 4. Publish routing result action for the Location.
-    history.listen((location, action) => {
-      dispatchCurrentHistory(dispatch, history);
-      dispatchRoutingResult(router, dispatch, location.pathname, action);
-      return;
-    });
-
-    return (next) => {
-      return (action) => {
-        // 1. Detect ChangeAction from outside system.
-        // 2. Pass the action to the next callback.
-        // 3. Operate History API.
-        // 4. Return the result of the next callback.
-        switch (action.type) {
-          case HISTORY_GO_BACK: {
-            const result = next(action);
-            history.goBack();
-            return result;
-          }
-          case HISTORY_GO_FORWARD: {
-            const result = next(action);
-            history.goForward();
-            return result;
-          }
-          case HISTORY_GO: {
-            const result = next(action);
-            history.go((action as DiffAction).payload);
-            return result;
-          }
-          case HISTORY_PUSH: {
-            const result = next(action);
-            const {
-              path,
-              state,
-            } = (action as DestinationAction).payload;
-            history.push(path, state);
-            return result;
-          }
-          case HISTORY_REPLACE: {
-            const result = next(action);
-            const {
-              path,
-              state,
-            } = (action as DestinationAction).payload;
-            history.replace(path, state);
-            return result;
-          }
-
-          // Pass the action to the next callback.
-          default:
-            return next(action);
-        }
-      };
-    };
+export interface Option {
+  saveStore: {
+    onBeforeSavingStore?: <S>(store: S) => S;
+    onRequestShrinkStore: <S>(store: S) => S;
   };
 }
 
-export function createStaticRouterMiddleware(router: Router, pathname: string): Middleware {
-  return ({dispatch}) => {
-    // Publish routing result action for static location.
-    dispatchRoutingResult(router, dispatch, pathname, PUSH);
-    return (next) => {
-      return (action) => {
+export interface State<S> extends LocationState {
+  internal: boolean;
+  store: S;
+  userState: any;
+}
+
+const tryReplace = <S>(
+  history: History,
+  path: string,
+  store: S,
+  userState: any,
+  onRequestShrinkStore: (store: S) => S,
+) => {
+  try {
+    const state: State<S> = { internal: true, store, userState };
+    history.replace(path, state);
+  } catch (err) {
+    if (err.name === "") {
+      tryReplace(
+        history,
+        path,
+        userState,
+        onRequestShrinkStore(store),
+        onRequestShrinkStore,
+      );
+    }
+  }
+};
+
+export function createHistoryMiddleware<S>(
+  router: Router,
+  history: History,
+  option?: Option,
+): Middleware {
+  if (option == null) {
+    option = {
+      saveStore: null,
+    };
+  }
+  return <T>({ dispatch, getState }: MiddlewareAPI<T>) => {
+    // 1. Publish LocationAction representing the initial Location.
+    // 2. Publish routing result action for initial Location.
+    dispatch(changed(history.action, history.location, option));
+    dispatch(route(history.action, router.exec(history.location.pathname)));
+
+    // 1. Subscribe history event from history API.
+    // 2. Detect publishing POP / PUSH / REPLACE event from history API.
+    // 3. Publish LocationAction representing the current Location.
+    // 4. Publish routing result action for the Location.
+    history.listen((location, action) => {
+      const { internal, store, userState } = location.state as State<S>;
+      dispatch(restore(store));
+      if (internal) {
+        return;
+      }
+      dispatch(changed(action, location, option));
+      dispatch(route(action, router.exec(location.pathname)));
+    });
+
+    return next => {
+      return <A extends HistoryAction>(action: A) => {
+        // History action
+        if (
+          action.type !== HISTORY_GO_BACK &&
+          action.type !== HISTORY_GO_FORWARD &&
+          action.type !== HISTORY_GO &&
+          action.type !== HISTORY_PUSH &&
+          action.type !== HISTORY_REPLACE
+        ) {
+          return next(action);
+        }
+
+        // 1. (Optional) Sync store to current location.
+        // 2. Call History API.
+        // 3. Pass the action to the next callback.
+        // 4. Return action.
+        if (option.saveStore != null) {
+          const {
+            onBeforeSavingStore,
+            onRequestShrinkStore,
+          } = option.saveStore;
+          const path = `${history.location.pathname}${history.location
+            .search}${history.location.hash}`;
+          const state: State<S> = history.location.state;
+          let store = getState();
+          if (onBeforeSavingStore != null) {
+            store = onBeforeSavingStore(store);
+          }
+          tryReplace(history, path, state, store, onRequestShrinkStore);
+        }
+        switch (action.type) {
+          case HISTORY_GO_BACK:
+            history.goBack();
+            break;
+          case HISTORY_GO_FORWARD:
+            history.goForward();
+            break;
+          case HISTORY_GO:
+            history.go((action as DiffAction).diff);
+            break;
+          case HISTORY_PUSH:
+            {
+              const { path, userState } = action as PathAction;
+              const state: State<S> = {
+                internal: false,
+                store: null,
+                userState,
+              };
+              history.push(path, state);
+            }
+            break;
+          case HISTORY_REPLACE:
+            {
+              const { path, userState } = action as PathAction;
+              const state: State<S> = {
+                internal: false,
+                store: null,
+                userState,
+              };
+              history.replace(path, state);
+            }
+            break;
+        }
         return next(action);
       };
     };
   };
 }
 
-function dispatchCurrentHistory(dispatch: Dispatch<HistoryAction>, history: History) {
-  dispatch(changed({
-    action: history.action,
-    entries: (history as any).entries, // history.d.ts is deficient
-    index: (history as any).index, // history.d.ts is deficient
-    length: history.length,
-    location: history.location,
-  }));
-}
-
-function dispatchRoutingResult(router: Router, dispatch: Dispatch<RoutingAction>, pathname: string, action: Action) {
-  const result = router.exec(pathname);
-  dispatch((result == null) ? notFound(action) : found(action, result));
+export function createStaticRouterMiddleware<S>(
+  router: Router,
+  pathname: string,
+): Middleware {
+  return <T>({ dispatch }: MiddlewareAPI<T>) => {
+    // Publish routing result action for static location.
+    dispatch(route("STATIC", router.exec(pathname)));
+    return next => {
+      return action => {
+        return next(action);
+      };
+    };
+  };
 }

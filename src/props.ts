@@ -1,10 +1,5 @@
-import {
-  History,
-  Routing,
-} from "./actions";
-import {
-  Params,
-} from "./router";
+import { History, Routing } from "./actions";
+import { Params } from "./router";
 
 export interface HistoryProps {
   history: History;

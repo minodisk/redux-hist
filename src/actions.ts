@@ -1,89 +1,103 @@
-import {
-  Action as HistoryAction,
-  Location,
-  LocationState,
-  Path,
-} from "history";
-import {
-  Action,
-  createAction,
-} from "redux-actions";
+import { Action as OriginalHistoryActionType, Location, Path } from "history";
+import { Action } from "redux";
+import { Option, State } from "./middlewares";
+import { Params, Route } from "./router";
 
-import {
-  Params,
-  Result,
-} from "./router";
+export type HistoryActionType = OriginalHistoryActionType | "STATIC";
+
+export const HISTORY_GO_BACK = "HISTORY_GO_BACK";
+export const HISTORY_GO_FORWARD = "HISTORY_GO_FORWARD";
+export const goBack = (): Action => {
+  return {
+    type: HISTORY_GO_BACK,
+  };
+};
+export const goForward = (): Action => {
+  return {
+    type: HISTORY_GO_FORWARD,
+  };
+};
+
+export const HISTORY_GO = "HISTORY_GO";
+export interface DiffAction extends Action {
+  diff: number;
+}
+export const go = (diff: number): DiffAction => {
+  return {
+    type: HISTORY_GO,
+    diff,
+  };
+};
 
 export const HISTORY_PUSH = "HISTORY_PUSH";
 export const HISTORY_REPLACE = "HISTORY_REPLACE";
-export const HISTORY_GO = "HISTORY_GO";
-export const HISTORY_GO_BACK = "HISTORY_GO_BACK";
-export const HISTORY_GO_FORWARD = "HISTORY_GO_FORWARD";
+export interface PathAction extends Action {
+  path: Path;
+  userState?: any;
+}
+export const push = (path: Path, userState?: any): PathAction => {
+  return {
+    type: HISTORY_PUSH,
+    path,
+    userState,
+  };
+};
+export const replace = (path: Path, userState?: any): PathAction => {
+  return {
+    type: HISTORY_REPLACE,
+    path,
+    userState,
+  };
+};
 
-export const HISTORY_CHANGED = "HISTORY_CHANGED";
+export type HistoryAction = Action | DiffAction | PathAction;
+
+export const LOCATION_CHANGED = "LOCATION_CHANGED";
+export interface LocationAction extends Action {
+  action: HistoryActionType;
+  location: Location;
+  option: Option;
+}
+export const changed = (
+  action: HistoryActionType,
+  location: Location,
+  option: Option,
+): LocationAction => {
+  return {
+    type: LOCATION_CHANGED,
+    action,
+    location,
+    option,
+  };
+};
 
 export const ROUTE_FOUND = "ROUTE_FOUND";
 export const ROUTE_NOT_FOUND = "ROUTE_NOT_FOUND";
-
-export interface Destination {
-  path: Path;
-  state?: LocationState;
+export interface RouteAction extends Action {
+  action: HistoryActionType;
+  route?: Route;
 }
-
-function combineDestination(path: Path, state?: LocationState): Destination {
-  return {path, state};
-}
-
-export interface Routing {
-  action: HistoryAction;
-  result?: Result;
-}
-
-export interface History {
-  action: HistoryAction;
-  entries: Array<Location>;
-  index: number;
-  length: number;
-  location: Location;
-}
-
-export type DestinationAction = Action<Destination>;
-export type DiffAction = Action<number>;
-export type ChangeAction = DestinationAction | DiffAction;
-export type HistoryAction = Action<History>;
-export type RoutingAction = Action<Routing>;
-
-const push1 = createAction<Destination, Path>(HISTORY_PUSH, combineDestination);
-const push2 = createAction<Destination, Path, LocationState>(HISTORY_PUSH, combineDestination);
-export function push(path: Path, state?: LocationState): DestinationAction {
-  if (state == null) {
-    return push1(path);
+export const route = (action: HistoryActionType, r: Route): RouteAction => {
+  if (r == null) {
+    return {
+      type: ROUTE_NOT_FOUND,
+      action,
+    };
   }
-  return push2(path, state);
-}
-const replace1 = createAction<Destination, Path>(HISTORY_REPLACE, combineDestination);
-const replace2 = createAction<Destination, Path, LocationState>(HISTORY_REPLACE, combineDestination);
-export function replace(path: Path, state?: LocationState): DestinationAction {
-  if (state == null) {
-    return replace1(path);
-  }
-  return replace2(path, state);
-}
-export const go = createAction<number>(HISTORY_GO);
-export const goBack = createAction(HISTORY_GO_BACK);
-export const goForward = createAction(HISTORY_GO_FORWARD);
+  return {
+    type: ROUTE_FOUND,
+    action,
+    route: r,
+  };
+};
 
-export const changed = createAction<History>(HISTORY_CHANGED);
-
-export const found = createAction<Routing, HistoryAction, Result>(
-  ROUTE_FOUND,
-  (action, result): Routing => {
-    return {action, result};
-  },
-);
-export const notFound = createAction<Routing, HistoryAction>(
-  ROUTE_NOT_FOUND,
-  (action): Routing => {
-    return {action};
-  },
-);
+export const RESTORE = "RESTORE";
+export interface RestoreAction<S> extends Action {
+  store: S;
+}
+export const restore = <S>(store: S): RestoreAction<S> => {
+  return {
+    type: RESTORE,
+    store,
+  };
+};
