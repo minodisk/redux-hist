@@ -1,11 +1,11 @@
 import {
   LOCATION_CHANGED,
   LocationAction,
+  RESTORE,
+  RestoreAction,
   ROUTE_FOUND,
   ROUTE_NOT_FOUND,
   RouteAction,
-  RestoreAction,
-  RESTORE,
 } from "./actions";
 
 export const reduceStore = <S>(state: any = {}, action: RestoreAction<S>) => {
@@ -15,7 +15,7 @@ export const reduceStore = <S>(state: any = {}, action: RestoreAction<S>) => {
     default:
       return state;
   }
-}
+};
 
 export const reduceLocation = (state: any = {}, action: LocationAction) => {
   switch (action.type) {
@@ -27,7 +27,7 @@ export const reduceLocation = (state: any = {}, action: LocationAction) => {
     default:
       return state;
   }
-}
+};
 
 export const reduceRoute = (state: any = {}, action: RouteAction) => {
   switch (action.type) {
@@ -43,4 +43,4 @@ export const reduceRoute = (state: any = {}, action: RouteAction) => {
     default:
       return state;
   }
-}
+};
