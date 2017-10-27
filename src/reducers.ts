@@ -1,27 +1,45 @@
 import {
-  History,
-  HistoryAction,
   LOCATION_CHANGED,
+  LocationAction,
   ROUTE_FOUND,
   ROUTE_NOT_FOUND,
   RouteAction,
-  Routing,
+  RestoreAction,
+  RESTORE,
 } from "./actions";
 
-export function reduceHistory(state: any = {}, action: HistoryAction): History {
+export const reduceStore = <S>(state: any = {}, action: RestoreAction<S>) => {
   switch (action.type) {
-    case LOCATION_CHANGED:
-      return action.payload;
+    case RESTORE:
+      return action.store;
     default:
       return state;
   }
 }
 
-export function reduceRouting(state: any = {}, action: RouteAction): Routing {
+export const reduceLocation = (state: any = {}, action: LocationAction) => {
+  switch (action.type) {
+    case LOCATION_CHANGED:
+      return {
+        action: action.action,
+        location: action.location,
+      };
+    default:
+      return state;
+  }
+}
+
+export const reduceRoute = (state: any = {}, action: RouteAction) => {
   switch (action.type) {
     case ROUTE_FOUND:
+      return {
+        action: action.action,
+        route: action.route,
+      };
     case ROUTE_NOT_FOUND:
-      return action.payload;
+      return {
+        action: action.action,
+      };
     default:
       return state;
   }
