@@ -11,14 +11,16 @@
   },
   "scripts": {
     "format":
-      "./node_modules/.bin/prettier --write ./src/*.ts ./text/*.ts ./*.json && ./node_modules/.bin/tslint --fix ./src/*.ts ./test/*.ts",
+      "./node_modules/.bin/prettier --write ./src/*.ts ./test/*.ts ./*.json && ./node_modules/.bin/tslint --fix ./src/*.ts ./test/*.ts",
     "lint": "./node_modules/.bin/tslint ./src/*.ts ./test/*.ts",
     "build": "./node_modules/.bin/tsc -p .",
-    "pretest": "./node_modules/.bin/tsc --outDir ./test-dist ./test/*.ts",
-    "test":
-      "./node_modules/.bin/nyc ./node_modules/.bin/mocha ./test-dist/*.js",
+    "pretest": "rm -rf .build && ./node_modules/.bin/tsc -p tsconfig.test.json",
+    "test": "./node_modules/.bin/jest",
     "posttest":
-      "nyc report --reporter=json && if [ \"$CI\" = \"true\" ]; then codecov -f coverage/*.json; fi"
+      "nyc report --reporter=json && if [ \"$CI\" = \"true\" ]; then codecov -f coverage/*.json; fi && rm -rf .build"
+  },
+  "jest": {
+    "testMatch": ["**/.build/test/*.js"]
   },
   "repository": {
     "type": "git",
@@ -37,18 +39,16 @@
   },
   "devDependencies": {
     "@types/history": "^4.6.0",
-    "@types/mocha": "^2.2.41",
-    "@types/power-assert": "^1.4.29",
+    "@types/jest": "^21.1.5",
     "@types/redux-actions": "^1.2.6",
     "codecov": "^2.2.0",
     "history": "^4.6.3",
-    "mocha": "^3.4.2",
+    "jest": "^21.2.1",
     "nyc": "^11.0.3",
-    "power-assert": "^1.4.4",
     "prettier": "^1.7.4",
     "redux": "^3.7.2",
     "tslint": "^5.8.0",
     "tslint-config-prettier": "^1.6.0",
-    "typescript": "^2.4.1"
+    "typescript": "^2.5.3"
   }
 }

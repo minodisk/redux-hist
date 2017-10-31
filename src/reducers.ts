@@ -1,3 +1,5 @@
+import { Location } from "history";
+import { Action } from "redux";
 import {
   LOCATION_CHANGED,
   LocationAction,
@@ -7,39 +9,61 @@ import {
   ROUTE_NOT_FOUND,
   RouteAction,
 } from "./actions";
+import { Route } from "./router";
 
-export const reduceStore = <S>(state: any = {}, action: RestoreAction<S>) => {
+export const reduceStore = <S>(
+  state: any = {},
+  action: RestoreAction<S> | Action,
+) => {
   switch (action.type) {
     case RESTORE:
-      return action.store;
+      const { store } = action as RestoreAction<S>;
+      return store;
     default:
       return state;
   }
 };
 
-export const reduceLocation = (state: any = {}, action: LocationAction) => {
-  switch (action.type) {
+export interface LocationProps {
+  action: string;
+  index: number;
+  length: number;
+  location: Location;
+}
+export const reduceLocation = (state: any = {}, a: LocationAction | Action) => {
+  switch (a.type) {
     case LOCATION_CHANGED:
+      const { action, index, length, location } = a as LocationAction;
       return {
-        action: action.action,
-        location: action.location,
+        action,
+        index,
+        length,
+        location,
       };
     default:
       return state;
   }
 };
 
-export const reduceRoute = (state: any = {}, action: RouteAction) => {
-  switch (action.type) {
-    case ROUTE_FOUND:
+export interface RouteProps {
+  action: string;
+  route?: Route;
+}
+export const reduceRoute = (state: any = {}, a: RouteAction | Action) => {
+  switch (a.type) {
+    case ROUTE_FOUND: {
+      const { action, route } = a as RouteAction;
       return {
-        action: action.action,
-        route: action.route,
+        action,
+        route,
       };
-    case ROUTE_NOT_FOUND:
+    }
+    case ROUTE_NOT_FOUND: {
+      const { action } = a as RouteAction;
       return {
-        action: action.action,
+        action,
       };
+    }
     default:
       return state;
   }

@@ -59,7 +59,7 @@ typings/
 
 # Built files
 lib
-test-dist
+.build
 
 # Credential files
 *.aes

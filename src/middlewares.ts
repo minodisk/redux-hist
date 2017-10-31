@@ -1,6 +1,5 @@
 import { History, Location, LocationState } from "history";
 import { Action, Dispatch, Middleware, MiddlewareAPI, Store } from "redux";
-
 import {
   changed,
   DiffAction,
@@ -20,7 +19,7 @@ import {
 import { Router } from "./router";
 
 export interface Option {
-  saveStore: {
+  saveStore?: {
     onBeforeSavingStore?: <S>(store: S) => S;
     onRequestShrinkStore: <S>(store: S) => S;
   };
@@ -68,7 +67,15 @@ export function createHistoryMiddleware<S>(
   return <T>({ dispatch, getState }: MiddlewareAPI<T>) => {
     // 1. Publish LocationAction representing the initial Location.
     // 2. Publish routing result action for initial Location.
-    dispatch(changed(history.action, history.location, option));
+    dispatch(
+      changed(
+        history.action,
+        (history as any).index,
+        history.length,
+        history.location,
+        option,
+      ),
+    );
     dispatch(route(history.action, router.exec(history.location.pathname)));
 
     // 1. Subscribe history event from history API.
@@ -81,7 +88,15 @@ export function createHistoryMiddleware<S>(
       if (internal) {
         return;
       }
-      dispatch(changed(action, location, option));
+      dispatch(
+        changed(
+          action,
+          (history as any).index,
+          history.length,
+          location,
+          option,
+        ),
+      );
       dispatch(route(action, router.exec(location.pathname)));
     });
 

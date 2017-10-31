@@ -55,17 +55,23 @@ export type HistoryAction = Action | DiffAction | PathAction;
 export const LOCATION_CHANGED = "LOCATION_CHANGED";
 export interface LocationAction extends Action {
   action: HistoryActionType;
+  index: number;
+  length: number;
   location: Location;
   option: Option;
 }
 export const changed = (
   action: HistoryActionType,
+  index: number,
+  length: number,
   location: Location,
   option: Option,
 ): LocationAction => {
   return {
     type: LOCATION_CHANGED,
     action,
+    index,
+    length,
     location,
     option,
   };
@@ -77,7 +83,7 @@ export interface RouteAction extends Action {
   action: HistoryActionType;
   route?: Route;
 }
-export const route = (action: HistoryActionType, r: Route): RouteAction => {
+export const route = (action: HistoryActionType, r?: Route): RouteAction => {
   if (r == null) {
     return {
       type: ROUTE_NOT_FOUND,
