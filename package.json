@@ -11,14 +11,18 @@
   },
   "scripts": {
     "format":
-      "./node_modules/.bin/prettier --write ./src/*.ts ./test/*.ts ./*.json && ./node_modules/.bin/tslint --fix ./src/*.ts ./test/*.ts",
-    "lint": "./node_modules/.bin/tslint ./src/*.ts ./test/*.ts",
+      "./node_modules/.bin/prettier --write {./*.json,./{src,text}/*.ts} && ./node_modules/.bin/tslint --fix ./{src,test}/*.ts",
+    "lint":
+      "./node_modules/.bin/prettier -l {./*.json,./{src,text}/*.ts} && ./node_modules/.bin/tslint ./{src,test}/*.ts",
     "build": "./node_modules/.bin/tsc -p .",
     "pretest": "rm -rf .build && ./node_modules/.bin/tsc -p tsconfig.test.json",
     "test": "./node_modules/.bin/jest",
     "posttest":
       "if [ \"$CI\" = \"true\" ]; then npm run reportcov; fi || rm -rf .build",
     "reportcov": "codecov -f coverage/*.json"
+  },
+  "prettier": {
+    "trailingComma": "all"
   },
   "jest": {
     "testMatch": ["**/.build/test/*.js"]
