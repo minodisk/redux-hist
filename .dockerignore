@@ -1,2 +1,13 @@
+.build
+.nyc_output
+coverage
 lib
 node_modules
+.dockerignore
+.gitignore
+Dockerfile
+LICENSE
+README.md
+codeship*
+*.env
+*.encrypted

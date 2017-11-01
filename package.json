@@ -17,7 +17,8 @@
     "pretest": "rm -rf .build && ./node_modules/.bin/tsc -p tsconfig.test.json",
     "test": "./node_modules/.bin/jest",
     "posttest":
-      "nyc report --reporter=json && if [ \"$CI\" = \"true\" ]; then codecov -f coverage/*.json; fi && rm -rf .build"
+      "if [ \"$CI\" = \"true\" ]; then npm run reportcov; fi || rm -rf .build",
+    "reportcov": "codecov -f coverage/*.json"
   },
   "jest": {
     "testMatch": ["**/.build/test/*.js"]
@@ -44,7 +45,6 @@
     "codecov": "^2.2.0",
     "history": "^4.6.3",
     "jest": "^21.2.1",
-    "nyc": "^11.0.3",
     "prettier": "^1.7.4",
     "redux": "^3.7.2",
     "tslint": "^5.8.0",

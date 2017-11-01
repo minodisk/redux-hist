@@ -101,7 +101,7 @@ import {
     message: "should ignore unrelated action",
     state: {
       action: "PUSH",
-      result: {
+      route: {
         key: "/foo",
         params: {
           bar: "100",
@@ -116,7 +116,7 @@ import {
     },
     want: {
       action: "PUSH",
-      result: {
+      route: {
         key: "/foo",
         params: {
           bar: "100",
@@ -135,7 +135,7 @@ import {
     }),
     want: {
       action: "PUSH",
-      result: {
+      route: {
         key: "/foo",
         params: {
           bar: "100",

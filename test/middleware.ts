@@ -29,11 +29,11 @@ test("createHistoryMiddleware() should subscribe router action and publish valid
   const router = new Router();
   const key = router.route("/users/:user_id");
   const history = createMemoryHistory();
-  const dispatch = 0;
-  const next = 1;
+  const dispatch = "dispatch";
+  const next = "next";
   const cases: Array<{
     message: string;
-    publishWith: number;
+    publishWith: string;
     action: LocationAction | HistoryAction | RouteAction;
   }> = [
     {
@@ -419,7 +419,7 @@ test("createHistoryMiddleware() should subscribe router action and publish valid
       action: "PUSH",
       index: 1,
       pathname: "/users",
-      state: undefined,
+      state: { internal: false, store: undefined, userState: undefined },
     },
     {
       pathAction: push("/users/100"),
@@ -427,7 +427,7 @@ test("createHistoryMiddleware() should subscribe router action and publish valid
       action: "PUSH",
       index: 2,
       pathname: "/users/100",
-      state: undefined,
+      state: { internal: false, store: undefined, userState: undefined },
     },
     {
       pathAction: goBack(),
@@ -435,7 +435,7 @@ test("createHistoryMiddleware() should subscribe router action and publish valid
       action: "POP",
       index: 1,
       pathname: "/users",
-      state: undefined,
+      state: { internal: false, store: undefined, userState: undefined },
     },
     {
       pathAction: goForward(),
@@ -443,7 +443,7 @@ test("createHistoryMiddleware() should subscribe router action and publish valid
       action: "POP",
       index: 2,
       pathname: "/users/100",
-      state: undefined,
+      state: { internal: false, store: undefined, userState: undefined },
     },
     {
       pathAction: go(-2),
@@ -459,7 +459,7 @@ test("createHistoryMiddleware() should subscribe router action and publish valid
       action: "POP",
       index: 2,
       pathname: "/users/100",
-      state: undefined,
+      state: { internal: false, store: undefined, userState: undefined },
     },
     {
       pathAction: replace("/users/200"),
@@ -467,7 +467,7 @@ test("createHistoryMiddleware() should subscribe router action and publish valid
       action: "REPLACE",
       index: 2,
       pathname: "/users/200",
-      state: undefined,
+      state: { internal: false, store: undefined, userState: undefined },
     },
     {
       pathAction: replace("/users"),
@@ -475,7 +475,7 @@ test("createHistoryMiddleware() should subscribe router action and publish valid
       action: "REPLACE",
       index: 2,
       pathname: "/users",
-      state: undefined,
+      state: { internal: false, store: undefined, userState: undefined },
     },
     {
       pathAction: replace("/users/300"),
@@ -483,7 +483,7 @@ test("createHistoryMiddleware() should subscribe router action and publish valid
       action: "REPLACE",
       index: 2,
       pathname: "/users/300",
-      state: undefined,
+      state: { internal: false, store: undefined, userState: undefined },
     },
   ] as Array<{
     pathAction: PathAction;
@@ -536,7 +536,7 @@ test("createStaticRouterMiddleware() should publish not found action when a rout
     dispatch: action => {
       expect(action).toEqual({
         type: ROUTE_NOT_FOUND,
-        action: "PUSH",
+        action: "STATIC",
       });
       return action;
     },
@@ -547,7 +547,7 @@ test("createStaticRouterMiddleware() should publish not found action when a rout
 });
 
 test("createStaticRouterMiddleware() should publish found action when a routed path is passed", () => {
-  expect.assertions(2);
+  expect.assertions(1);
 
   const router = new Router();
   const key = router.route("/users/:user_id");
@@ -558,7 +558,7 @@ test("createStaticRouterMiddleware() should publish found action when a routed p
     dispatch: action => {
       expect(action).toEqual({
         type: ROUTE_FOUND,
-        action: "PUSH",
+        action: "STATIC",
         route: {
           key,
           params: {
@@ -575,6 +575,8 @@ test("createStaticRouterMiddleware() should publish found action when a routed p
 });
 
 test("createStaticRouterMiddleware() should do nothing when an unrelated action is passed", () => {
+  expect.assertions(1);
+
   const router = new Router();
   const history = createMemoryHistory();
   const act = createStaticRouterMiddleware(router, "/")({

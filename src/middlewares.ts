@@ -59,33 +59,44 @@ export function createHistoryMiddleware<S>(
   history: History,
   option?: Option,
 ): Middleware {
-  if (option == null) {
-    option = {
-      saveStore: null,
-    };
-  }
   return <T>({ dispatch, getState }: MiddlewareAPI<T>) => {
-    // 1. Publish LocationAction representing the initial Location.
-    // 2. Publish routing result action for initial Location.
-    dispatch(
-      changed(
-        history.action,
-        (history as any).index,
-        history.length,
-        history.location,
-        option,
-      ),
-    );
-    dispatch(route(history.action, router.exec(history.location.pathname)));
+    {
+      // 1. Publish LocationAction representing the initial Location.
+      // 2. Publish routing result action for initial Location.
+      const { key, pathname, search, hash, state } = history.location;
+      dispatch(
+        changed(
+          history.action,
+          (history as any).index,
+          history.length,
+          {
+            key,
+            pathname,
+            search,
+            hash,
+            state: state == null ? undefined : state.userState,
+          },
+          option,
+        ),
+      );
+      dispatch(route(history.action, router.exec(pathname)));
+    }
 
     // 1. Subscribe history event from history API.
     // 2. Detect publishing POP / PUSH / REPLACE event from history API.
     // 3. Publish LocationAction representing the current Location.
     // 4. Publish routing result action for the Location.
     history.listen((location, action) => {
-      const { internal, store, userState } = location.state as State<S>;
-      dispatch(restore(store));
-      if (internal) {
+      const { key, pathname, search, hash, state } = location;
+      if (
+        option != null &&
+        option.saveStore != null &&
+        state != null &&
+        state.store != null
+      ) {
+        dispatch(restore(state.store));
+      }
+      if (state != null && state.internal) {
         return;
       }
       dispatch(
@@ -93,15 +104,23 @@ export function createHistoryMiddleware<S>(
           action,
           (history as any).index,
           history.length,
-          location,
+          {
+            key,
+            pathname,
+            search,
+            hash,
+            state: state == null ? undefined : state.userState,
+          },
           option,
         ),
       );
-      dispatch(route(action, router.exec(location.pathname)));
+      dispatch(route(action, router.exec(pathname)));
     });
 
     return next => {
       return <A extends HistoryAction>(action: A) => {
+        action = next(action);
+
         // History action
         if (
           action.type !== HISTORY_GO_BACK &&
@@ -110,14 +129,14 @@ export function createHistoryMiddleware<S>(
           action.type !== HISTORY_PUSH &&
           action.type !== HISTORY_REPLACE
         ) {
-          return next(action);
+          return action;
         }
 
         // 1. (Optional) Sync store to current location.
         // 2. Call History API.
         // 3. Pass the action to the next callback.
         // 4. Return action.
-        if (option.saveStore != null) {
+        if (option != null && option.saveStore != null) {
           const {
             onBeforeSavingStore,
             onRequestShrinkStore,
@@ -146,7 +165,7 @@ export function createHistoryMiddleware<S>(
               const { path, userState } = action as PathAction;
               const state: State<S> = {
                 internal: false,
-                store: null,
+                store: undefined,
                 userState,
               };
               history.push(path, state);
@@ -157,14 +176,14 @@ export function createHistoryMiddleware<S>(
               const { path, userState } = action as PathAction;
               const state: State<S> = {
                 internal: false,
-                store: null,
+                store: undefined,
                 userState,
               };
               history.replace(path, state);
             }
             break;
         }
-        return next(action);
+        return action;
       };
     };
   };
