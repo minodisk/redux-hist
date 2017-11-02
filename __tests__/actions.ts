@@ -10,6 +10,8 @@ import {
   HistoryActionType,
   push,
   replace,
+  restore,
+  RESTORE,
   Route,
   route,
   ROUTE_FOUND,
@@ -52,7 +54,7 @@ test("should be called with Path and LocationState", () => {
 
 ([
   {
-    message: "POP with empty params",
+    name: "route with action as POP and route without params",
     action: "POP",
     route: {
       key: "0",
@@ -68,7 +70,7 @@ test("should be called with Path and LocationState", () => {
     },
   },
   {
-    message: "POP with params",
+    name: "route with action as POP and route with params",
     action: "POP",
     route: {
       key: "1",
@@ -88,7 +90,7 @@ test("should be called with Path and LocationState", () => {
     },
   },
   {
-    message: "PUSH with empty params",
+    name: "route with action as PUSH and route without params",
     action: "PUSH",
     route: {
       key: "2",
@@ -104,7 +106,7 @@ test("should be called with Path and LocationState", () => {
     },
   },
   {
-    message: "PUSH with params",
+    name: "route with action as PUSH and route with params",
     action: "PUSH",
     route: {
       key: "3",
@@ -124,7 +126,7 @@ test("should be called with Path and LocationState", () => {
     },
   },
   {
-    message: "REPLACE with empty params",
+    name: "route with action as REPLACE and route without params",
     action: "REPLACE",
     route: {
       key: "4",
@@ -140,7 +142,7 @@ test("should be called with Path and LocationState", () => {
     },
   },
   {
-    message: "REPLACE with params",
+    name: "route with action as REPLACE and route with params",
     action: "REPLACE",
     route: {
       key: "5",
@@ -160,12 +162,12 @@ test("should be called with Path and LocationState", () => {
     },
   },
 ] as Array<{
-  message: string;
+  name: string;
   action: HistoryActionType;
   route: Route;
   want: RouteAction;
 }>).forEach(c => {
-  test(c.message, () => {
+  test(c.name, () => {
     const got = route(c.action, c.route);
     expect(got).toEqual(c.want);
   });
@@ -173,7 +175,7 @@ test("should be called with Path and LocationState", () => {
 
 ([
   {
-    message: "POP",
+    name: "route with action as POP and no route",
     action: "POP",
     want: {
       type: ROUTE_NOT_FOUND,
@@ -181,7 +183,7 @@ test("should be called with Path and LocationState", () => {
     },
   },
   {
-    message: "PUSH",
+    name: "route with action as PUSH and no route",
     action: "PUSH",
     want: {
       type: ROUTE_NOT_FOUND,
@@ -189,7 +191,7 @@ test("should be called with Path and LocationState", () => {
     },
   },
   {
-    message: "REPLACE",
+    name: "route with action as REPLACE and no route",
     action: "REPLACE",
     want: {
       type: ROUTE_NOT_FOUND,
@@ -197,12 +199,59 @@ test("should be called with Path and LocationState", () => {
     },
   },
 ] as Array<{
-  message: string;
+  name: string;
   action: HistoryActionType;
   want: RouteAction;
 }>).forEach(c => {
-  test(c.message, () => {
+  test(c.name, () => {
     const got = route(c.action);
     expect(got).toEqual(c.want);
   });
+});
+
+([
+  {
+    name: "restore with undefined store",
+    store: undefined,
+    want: {
+      type: RESTORE,
+      store: undefined,
+    },
+  },
+  {
+    name: "restore with null store",
+    store: null,
+    want: {
+      type: RESTORE,
+      store: null,
+    },
+  },
+  {
+    name: "restore with empty object",
+    store: {},
+    want: {
+      type: RESTORE,
+      store: {},
+    },
+  },
+  {
+    name: "restore with fullfilled object",
+    store: {
+      users: [{ userID: 1 }, { userID: 2 }],
+      posts: [{ postID: 1 }, { postID: 2 }],
+    },
+    want: {
+      type: RESTORE,
+      store: {
+        users: [{ userID: 1 }, { userID: 2 }],
+        posts: [{ postID: 1 }, { postID: 2 }],
+      },
+    },
+  },
+] as Array<{
+  name: string;
+  store: any;
+  want: any;
+}>).forEach(c => {
+  test(c.name, expect(restore(c.store)).toEqual(c.want));
 });
