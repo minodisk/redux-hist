@@ -1,6 +1,5 @@
 import { createMemoryHistory } from "history";
 import "jest";
-import { Action } from "redux-actions";
 import {
   changed,
   createHistoryMiddleware,
