@@ -11,21 +11,23 @@
   },
   "scripts": {
     "format":
-      "./node_modules/.bin/prettier --write {./*.json,./{src,text}/*.ts} && ./node_modules/.bin/tslint --fix ./{src,test}/*.ts",
+      "./node_modules/.bin/prettier --write {./*.json,./{src,__tests__}/*.ts} && ./node_modules/.bin/tslint --fix ./{src,__tests__}/*.ts",
     "lint":
-      "./node_modules/.bin/prettier -l {./*.json,./{src,text}/*.ts} && ./node_modules/.bin/tslint ./{src,test}/*.ts",
+      "./node_modules/.bin/prettier -l {./*.json,./{src,__tests__}/*.ts} && ./node_modules/.bin/tslint ./{src,__tests__}/*.ts",
     "build": "./node_modules/.bin/tsc -p .",
-    "pretest": "rm -rf .build && ./node_modules/.bin/tsc -p tsconfig.test.json",
     "test": "./node_modules/.bin/jest",
-    "posttest":
-      "if [ \"$CI\" = \"true\" ]; then npm run reportcov; fi || rm -rf .build",
+    "posttest": "npm run reportcov",
     "reportcov": "codecov -f coverage/*.json"
   },
   "prettier": {
     "trailingComma": "all"
   },
   "jest": {
-    "testMatch": ["**/.build/test/*.js"]
+    "transform": {
+      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json"]
   },
   "repository": {
     "type": "git",
@@ -51,6 +53,7 @@
     "jest": "^21.2.1",
     "prettier": "^1.7.4",
     "redux": "^3.7.2",
+    "ts-jest": "^21.1.4",
     "tslint": "^5.8.0",
     "tslint-config-prettier": "^1.6.0",
     "typescript": "^2.5.3"

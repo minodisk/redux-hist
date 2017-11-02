@@ -9,3 +9,4 @@ ARG NPM_TOKEN
 RUN echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc && npm install
 COPY . .
 RUN npm run build
+ARG CODECOV_TOKEN
