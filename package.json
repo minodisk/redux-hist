@@ -15,8 +15,8 @@
     "lint":
       "./node_modules/.bin/prettier -l {./*.json,./{src,__tests__}/*.ts} && ./node_modules/.bin/tslint ./{src,__tests__}/*.ts",
     "build": "./node_modules/.bin/tsc -p .",
-    "test": "./node_modules/.bin/jest",
-    "posttest": "npm run reportcov",
+    "test": "./node_modules/.bin/jest --coverage",
+    "posttest": "if [ \"$CI\" = \"true\" ]; then npm run reportcov; fi",
     "reportcov": "codecov -f coverage/*.json"
   },
   "prettier": {

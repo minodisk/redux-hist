@@ -5,7 +5,7 @@
       command: npm run lint
     - name: Test
       service: redux-hist
-      command: npm test -- --coverage
+      command: npm test
 
 - type: parallel
   tag: ^\d+\.\d+\.\d+$
