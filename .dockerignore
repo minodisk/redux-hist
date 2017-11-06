@@ -1,6 +1,6 @@
 .build
-.nyc_output
-coverage
+.coverage
+.git
 lib
 node_modules
 .dockerignore
