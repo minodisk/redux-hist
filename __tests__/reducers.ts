@@ -6,6 +6,8 @@ import {
   LocationProps,
   reduceLocation,
   reduceRoute,
+  reduceStore,
+  restore,
   route,
   RouteAction,
   RouteProps,
@@ -13,7 +15,7 @@ import {
 
 [
   {
-    message: "should ignore unrelated action",
+    name: "should ignore unrelated action",
     state: {
       action: "PUSH",
       index: 5,
@@ -50,7 +52,7 @@ import {
     },
   },
   {
-    message: "should return changed action's payload",
+    name: "should return changed action's payload",
     state: {},
     action: changed(
       "PUSH",
@@ -84,12 +86,12 @@ import {
   },
 ].forEach(
   (c: {
-    message: string;
+    name: string;
     state: any;
     action: Action | LocationAction;
     want: LocationProps;
   }) => {
-    test("reduceLocation() " + c.message, () => {
+    test(`reduceLocation() ${c.name}`, () => {
       const got = reduceLocation(c.state, c.action);
       expect(got).toEqual(c.want);
     });
@@ -98,7 +100,7 @@ import {
 
 [
   {
-    message: "should ignore unrelated action",
+    name: "should ignore unrelated action",
     state: {
       action: "PUSH",
       route: {
@@ -125,7 +127,7 @@ import {
     },
   },
   {
-    message: "should returns valid routing object when found",
+    name: "should return valid routing object when found",
     state: {},
     action: route("PUSH", {
       key: "/foo",
@@ -144,7 +146,7 @@ import {
     },
   },
   {
-    message: "should returns valid routing object when not found",
+    name: "should return valid routing object when not found",
     state: {},
     action: route("PUSH"),
     want: {
@@ -152,15 +154,33 @@ import {
     },
   },
 ].forEach(
-  (c: {
-    message: string;
-    state: any;
-    action: RouteAction;
-    want: RouteProps;
-  }) => {
-    test("reduceRoute() " + c.message, () => {
+  (c: { name: string; state: any; action: RouteAction; want: RouteProps }) => {
+    test(`reduceRoute() ${c.name}`, () => {
       const got = reduceRoute(c.state, c.action);
       expect(got).toEqual(c.want);
     });
   },
 );
+
+[
+  {
+    name: "should ignore unrelated action",
+    state: { a: 1 },
+    action: {
+      type: "FOO",
+      store: { a: 2 },
+    },
+    want: { a: 1 },
+  },
+  {
+    name: "should return new store",
+    state: { a: 1 },
+    action: restore({ b: 2 }),
+    want: { b: 2 },
+  },
+].forEach((c: { name: string; state: any; action: RestoreAction<any> }) => {
+  test(`reduceStore() ${c.name}`, () => {
+    const got = reduceStore(c.state, c.action);
+    expect(got).toEqual(c.want);
+  });
+});

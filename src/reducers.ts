@@ -11,19 +11,6 @@ import {
 } from "./actions";
 import { Route } from "./router";
 
-export const reduceStore = <S>(
-  state: any = {},
-  action: RestoreAction<S> | Action,
-) => {
-  switch (action.type) {
-    case RESTORE:
-      const { store } = action as RestoreAction<S>;
-      return store;
-    default:
-      return state;
-  }
-};
-
 export interface LocationProps {
   action: string;
   index: number;
@@ -64,6 +51,19 @@ export const reduceRoute = (state: any = {}, a: RouteAction | Action) => {
         action,
       };
     }
+    default:
+      return state;
+  }
+};
+
+export const reduceStore = <S>(
+  state: any = {},
+  action: RestoreAction<S> | Action,
+) => {
+  switch (action.type) {
+    case RESTORE:
+      const { store } = action as RestoreAction<S>;
+      return store;
     default:
       return state;
   }
