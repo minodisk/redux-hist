@@ -11,13 +11,16 @@ import {
 } from "./actions";
 import { Route } from "./router";
 
-export interface LocationProps {
+export interface History {
   action: string;
   index: number;
   length: number;
   location: Location;
 }
-export const reduceLocation = (state: any = {}, a: LocationAction | Action) => {
+export const reduceLocation = (
+  state: any = {},
+  a: LocationAction | Action,
+): History => {
   switch (a.type) {
     case LOCATION_CHANGED:
       const { action, index, length, location } = a as LocationAction;
@@ -32,25 +35,16 @@ export const reduceLocation = (state: any = {}, a: LocationAction | Action) => {
   }
 };
 
-export interface RouteProps {
-  action: string;
-  route?: Route;
-}
-export const reduceRoute = (state: any = {}, a: RouteAction | Action) => {
+export const reduceRoute = (
+  state: any = {},
+  a: RouteAction | Action,
+): Route => {
   switch (a.type) {
-    case ROUTE_FOUND: {
-      const { action, route } = a as RouteAction;
-      return {
-        action,
-        route,
-      };
-    }
-    case ROUTE_NOT_FOUND: {
-      const { action } = a as RouteAction;
-      return {
-        action,
-      };
-    }
+    case ROUTE_FOUND:
+      const { route } = a as RouteAction;
+      return route;
+    case ROUTE_NOT_FOUND:
+      return null;
     default:
       return state;
   }

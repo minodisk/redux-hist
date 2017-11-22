@@ -8,7 +8,6 @@ services:
       dockerfile: Dockerfile
       encrypted_args_file: secret.env.encrypted
     volumes:
-      - .coverage:/redux-hist/coverage/lcov-report
       - .git:/redux-hist/.git
     encrypted_env_file: secret.env.encrypted
     cached: true

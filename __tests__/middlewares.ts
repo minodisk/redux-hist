@@ -1,12 +1,16 @@
 import { createMemoryHistory } from "history";
 import "jest";
+import { applyMiddleware, compose, createStore, Middleware } from "redux";
 import {
   changed,
   createHistoryMiddleware,
+  createRestoreMiddleware,
+  createRouterMiddleware,
   createStaticRouterMiddleware,
   go,
   goBack,
   goForward,
+  History,
   HISTORY_GO,
   HISTORY_GO_BACK,
   HISTORY_GO_FORWARD,
@@ -18,208 +22,226 @@ import {
   PathAction,
   push,
   replace,
+  RESTORE,
+  RestoreAction,
   ROUTE_FOUND,
   ROUTE_NOT_FOUND,
   RouteAction,
   Router,
+  State,
 } from "../src";
 
-test("createHistoryMiddleware() should subscribe router action and publish valid action", () => {
-  const router = new Router();
-  const key = router.route("/users/:user_id");
-  const history = createMemoryHistory();
-  const dispatch = "dispatch";
-  const next = "next";
-  const cases: Array<{
-    message: string;
-    publishWith: string;
-    action: LocationAction | HistoryAction | RouteAction;
-  }> = [
-    {
-      message: "history action should be dispatched including initial location",
-      publishWith: dispatch,
-      action: {
-        type: LOCATION_CHANGED,
-        action: "POP",
-        index: 0,
-        length: 1,
-        location: {
-          key: "",
-          pathname: "/",
-          search: "",
-          hash: "",
-          state: undefined,
+describe("createRestoreMiddleware()", () => {
+  describe("dispatch restore action when it is initialized", () => {
+    ([
+      {
+        name: "without state",
+        state: null,
+        want: null,
+      },
+      {
+        name: "without store",
+        state: { store: null },
+        want: null,
+      },
+      {
+        name: "with store",
+        state: { store: { foo: 100 } },
+        want: {
+          type: RESTORE,
+          store: { foo: 100 },
         },
       },
-    },
-    {
-      message: "router can not find routing to initial location",
-      publishWith: dispatch,
-      action: {
-        type: ROUTE_NOT_FOUND,
-        action: "POP",
+    ] as Array<{
+      name: string;
+      state: any;
+      want: RestoreAction<{}>;
+    }>).forEach(c => {
+      describe(c.name, () => {
+        const history = createMemoryHistory();
+        const onRequestShrinkStore = jest.fn((s: any): any => s);
+        const onBeforeSavingStore = jest.fn((s: any): any => s);
+        const middleware = createRestoreMiddleware(
+          history,
+          onRequestShrinkStore,
+          onBeforeSavingStore,
+        );
+        const store = {
+          getState: jest.fn(() => {
+            return {};
+          }),
+          dispatch: jest.fn(),
+        };
+        middleware(store);
+        history.push("/foo", c.state);
+        if (c.want == null) {
+          it("shouldn't dispatch any action", () => {
+            expect(store.dispatch).not.toBeCalled();
+          });
+        } else {
+          it("should dispatch restore action", () => {
+            expect(store.dispatch).toBeCalledWith(c.want);
+          });
+        }
+      });
+    });
+  });
+
+  describe("dispatch restore action when location is changed", () => {
+    ([
+      {
+        name: "routed path",
+        action: push("/foo"),
+        initial: { description: "initial" },
+        before: { description: "customized in before callback" },
+        shrinked: { description: "shrinked in request shrink callback" },
+        want: {
+          store: { description: "customized in before callback" },
+        },
       },
-    },
+    ] as Array<{
+      name: string;
+      action: PathAction;
+      initial: any;
+      before: any;
+      shrinked: any;
+      want: State<any, any>;
+    }>).forEach(c => {
+      describe(c.name, () => {
+        const history = createMemoryHistory();
+        const onRequestShrinkStore = jest.fn(s => c.shrinked);
+        const onBeforeSavingStore = jest.fn(s => c.before);
+        const middleware = createRestoreMiddleware(
+          history,
+          onRequestShrinkStore,
+          onBeforeSavingStore,
+        );
+        const store = {
+          getState: jest.fn(() => c.initial),
+          dispatch: jest.fn(),
+        };
+        const next = jest.fn();
+        const invoke = middleware(store)(next);
+        // store.dispatch.mockReset();
+
+        expect(onRequestShrinkStore).not.toBeCalled();
+        expect(onBeforeSavingStore).not.toBeCalled();
+        expect(store.dispatch).not.toBeCalled();
+
+        invoke(c.action);
+
+        it("onBeforeSavingStore() should be called", () => {
+          expect(onBeforeSavingStore).toBeCalledWith(c.initial);
+        });
+
+        it("location state should be replaced with new state", () => {
+          expect(history.location.state).toEqual(c.want);
+        });
+
+        it("shouldn't dispatch because location replaced internally", () => {
+          expect(store.dispatch).not.toBeCalled();
+        });
+      });
+    });
+  });
+});
+
+describe("createHistoryMiddleware()", () => {
+  const history = createMemoryHistory();
+  const historyMiddleware = createHistoryMiddleware(history);
+  const store = {
+    getState: jest.fn(() => {
+      return {};
+    }),
+    dispatch: jest.fn(),
+  };
+  const next = jest.fn();
+  const invoke = action => historyMiddleware(store)(next)(action);
+
+  ([
     {
-      message: "push /users",
-      publishWith: next,
-      action: {
-        type: HISTORY_PUSH,
-        path: "/users",
-      },
-    },
-    {
-      message: "detect pushing /users",
-      publishWith: dispatch,
-      action: {
-        type: LOCATION_CHANGED,
+      name: "push /users-old",
+      action: push("/users-old"),
+      want: {
         action: "PUSH",
         index: 1,
         length: 2,
         location: {
-          key: "",
-          pathname: "/users",
+          pathname: "/users-old",
           search: "",
           hash: "",
-          state: undefined,
+          state: { store: undefined },
         },
       },
     },
     {
-      message: "router can not find routing to push /users",
-      publishWith: dispatch,
-      action: {
-        type: ROUTE_NOT_FOUND,
-        action: "PUSH",
+      name: "replace /users",
+      action: replace("/users"),
+      want: {
+        action: "REPLACE",
+        index: 1,
+        length: 2,
+        location: {
+          pathname: "/users",
+          search: "",
+          hash: "",
+          state: { store: undefined },
+        },
       },
     },
     {
-      message: "push /users",
-      publishWith: next,
-      action: {
-        type: HISTORY_PUSH,
-        path: "/users/100",
-      },
-    },
-    {
-      message: "detect pushing /users/100",
-      publishWith: dispatch,
-      action: {
-        type: LOCATION_CHANGED,
+      name: "push /users/100",
+      action: push("/users/100"),
+      want: {
         action: "PUSH",
         index: 2,
         length: 3,
         location: {
-          key: "",
           pathname: "/users/100",
           search: "",
           hash: "",
-          state: undefined,
+          state: { store: undefined },
         },
       },
     },
     {
-      message: "router can find routing to push /users/100",
-      publishWith: dispatch,
-      action: {
-        type: ROUTE_FOUND,
-        action: "PUSH",
-        route: {
-          key,
-          params: {
-            user_id: "100",
-          },
-        },
-      },
-    },
-    {
-      message: "back to /users",
-      publishWith: next,
-      action: {
-        type: HISTORY_GO_BACK,
-      },
-    },
-    {
-      message: "detect back to /users",
-      publishWith: dispatch,
-      action: {
-        type: LOCATION_CHANGED,
+      name: "go back one step",
+      action: goBack(),
+      want: {
         action: "POP",
         index: 1,
         length: 3,
         location: {
-          key: "",
           pathname: "/users",
           search: "",
           hash: "",
-          state: undefined,
+          state: { store: undefined },
         },
       },
     },
     {
-      message: "router can not find routing when back to /users",
-      publishWith: dispatch,
-      action: {
-        type: ROUTE_NOT_FOUND,
-        action: "POP",
-      },
-    },
-    {
-      message: "forward to /users",
-      publishWith: next,
-      action: {
-        type: HISTORY_GO_FORWARD,
-      },
-    },
-    {
-      message: "detect forward to /users",
-      publishWith: dispatch,
-      action: {
-        type: LOCATION_CHANGED,
+      name: "go forward one step",
+      action: goForward(),
+      want: {
         action: "POP",
         index: 2,
         length: 3,
         location: {
-          key: "",
           pathname: "/users/100",
           search: "",
           hash: "",
-          state: undefined,
+          state: { store: undefined },
         },
       },
     },
     {
-      message: "router can find routing when forward to /users/100",
-      publishWith: dispatch,
-      action: {
-        type: ROUTE_FOUND,
-        action: "POP",
-        route: {
-          key,
-          params: {
-            user_id: "100",
-          },
-        },
-      },
-    },
-    {
-      message: "go to /users",
-      publishWith: next,
-      action: {
-        type: HISTORY_GO,
-        diff: -2,
-      },
-    },
-    {
-      message: "detect going to /users",
-      publishWith: dispatch,
-      action: {
-        type: LOCATION_CHANGED,
+      name: "go back two step",
+      action: go(-2),
+      want: {
         action: "POP",
         index: 0,
         length: 3,
         location: {
-          key: "",
           pathname: "/",
           search: "",
           hash: "",
@@ -228,368 +250,243 @@ test("createHistoryMiddleware() should subscribe router action and publish valid
       },
     },
     {
-      message: "router can not find routing when go to /users",
-      publishWith: dispatch,
-      action: {
-        type: ROUTE_NOT_FOUND,
-        action: "POP",
-      },
-    },
-    {
-      message: "go to /users",
-      publishWith: next,
-      action: {
-        type: HISTORY_GO,
-        diff: 2,
-      },
-    },
-    {
-      message: "detect going to /users",
-      publishWith: dispatch,
-      action: {
-        type: LOCATION_CHANGED,
+      name: "go forward two step",
+      action: go(2),
+      want: {
         action: "POP",
         index: 2,
         length: 3,
         location: {
-          key: "",
           pathname: "/users/100",
           search: "",
           hash: "",
-          state: undefined,
+          state: { store: undefined },
         },
       },
-    },
-    {
-      message: "router can find routing when go to /users/100",
-      publishWith: dispatch,
-      action: {
-        type: ROUTE_FOUND,
-        action: "POP",
-        route: {
-          key,
-          params: {
-            user_id: "100",
-          },
-        },
-      },
-    },
-    {
-      message: "replace /users",
-      publishWith: next,
-      action: {
-        type: HISTORY_REPLACE,
-        path: "/users/200",
-      },
-    },
-    {
-      message: "detect replacing /users/200",
-      publishWith: dispatch,
-      action: {
-        type: LOCATION_CHANGED,
-        action: "REPLACE",
-        index: 2,
-        length: 3,
-        location: {
-          key: "",
-          pathname: "/users/200",
-          search: "",
-          hash: "",
-          state: undefined,
-        },
-      },
-    },
-    {
-      message: "router can find routing when replace to /users/200",
-      publishWith: dispatch,
-      action: {
-        type: ROUTE_FOUND,
-        action: "REPLACE",
-        route: {
-          key,
-          params: {
-            user_id: "200",
-          },
-        },
-      },
-    },
-    {
-      message: "push /users",
-      publishWith: next,
-      action: {
-        type: HISTORY_REPLACE,
-        path: "/users",
-      },
-    },
-    {
-      message: "detect replacing /users",
-      publishWith: dispatch,
-      action: {
-        type: LOCATION_CHANGED,
-        action: "REPLACE",
-        index: 2,
-        length: 3,
-        location: {
-          key: "",
-          pathname: "/users",
-          search: "",
-          hash: "",
-          state: undefined,
-        },
-      },
-    },
-    {
-      message: "router can not find routing when replace to /users",
-      publishWith: dispatch,
-      action: {
-        type: ROUTE_NOT_FOUND,
-        action: "REPLACE",
-      },
-    },
-    {
-      message: "replace /users",
-      publishWith: next,
-      action: {
-        type: HISTORY_REPLACE,
-        path: "/users/300",
-      },
-    },
-    {
-      message: "detect replacing /users/300",
-      publishWith: dispatch,
-      action: {
-        type: LOCATION_CHANGED,
-        action: "REPLACE",
-        index: 2,
-        length: 3,
-        location: {
-          key: "",
-          pathname: "/users/300",
-          search: "",
-          hash: "",
-          state: undefined,
-        },
-      },
-    },
-    {
-      message: "router can find routing when replace to /users/300",
-      publishWith: dispatch,
-      action: {
-        type: ROUTE_FOUND,
-        action: "REPLACE",
-        route: {
-          key,
-          params: {
-            user_id: "300",
-          },
-        },
-      },
-    },
-  ];
-  let i = 0;
-  const entries = [];
-  const act = createHistoryMiddleware(router, history)({
-    getState: () => {
-      return {};
-    },
-    dispatch: action => {
-      const a = action as LocationAction | HistoryAction | RouteAction;
-      const c = cases[i];
-      if (a.type === LOCATION_CHANGED) {
-        (c.action as LocationAction).location.key = (a as LocationAction).location.key;
-      }
-      expect(c.publishWith).toBe(dispatch);
-      expect(action).toEqual(c.action);
-      i++;
-      return action;
-    },
-  })(action => {
-    const c = cases[i];
-    expect(c.publishWith).toBe(next);
-    expect(action).toEqual(c.action);
-    i++;
-    return action;
-  });
-
-  for (const c of [
-    {
-      pathAction: push("/users"),
-      length: 2,
-      action: "PUSH",
-      index: 1,
-      pathname: "/users",
-      state: { internal: false, store: undefined, userState: undefined },
-    },
-    {
-      pathAction: push("/users/100"),
-      length: 3,
-      action: "PUSH",
-      index: 2,
-      pathname: "/users/100",
-      state: { internal: false, store: undefined, userState: undefined },
-    },
-    {
-      pathAction: goBack(),
-      length: 3,
-      action: "POP",
-      index: 1,
-      pathname: "/users",
-      state: { internal: false, store: undefined, userState: undefined },
-    },
-    {
-      pathAction: goForward(),
-      length: 3,
-      action: "POP",
-      index: 2,
-      pathname: "/users/100",
-      state: { internal: false, store: undefined, userState: undefined },
-    },
-    {
-      pathAction: go(-2),
-      length: 3,
-      action: "POP",
-      index: 0,
-      pathname: "/",
-      state: undefined,
-    },
-    {
-      pathAction: go(2),
-      length: 3,
-      action: "POP",
-      index: 2,
-      pathname: "/users/100",
-      state: { internal: false, store: undefined, userState: undefined },
-    },
-    {
-      pathAction: replace("/users/200"),
-      length: 3,
-      action: "REPLACE",
-      index: 2,
-      pathname: "/users/200",
-      state: { internal: false, store: undefined, userState: undefined },
-    },
-    {
-      pathAction: replace("/users"),
-      length: 3,
-      action: "REPLACE",
-      index: 2,
-      pathname: "/users",
-      state: { internal: false, store: undefined, userState: undefined },
-    },
-    {
-      pathAction: replace("/users/300"),
-      length: 3,
-      action: "REPLACE",
-      index: 2,
-      pathname: "/users/300",
-      state: { internal: false, store: undefined, userState: undefined },
     },
   ] as Array<{
-    pathAction: PathAction;
-    length: number;
-    action: string;
-    index: number;
-    pathname: string;
-    state: any;
-  }>) {
-    act(c.pathAction);
-    expect(history.length).toEqual(c.length);
-    expect(history.action).toEqual(c.action);
-    expect(history.index).toEqual(c.index);
-    expect(history.location.pathname).toEqual(c.pathname);
-    expect(history.location.state).toEqual(c.state);
-  }
-
-  expect(i).toEqual(cases.length);
+    name: string;
+    action: PathAction;
+    want: History;
+  }>).forEach(c => {
+    it(c.name, () => {
+      invoke(c.action);
+      expect(next).toBeCalledWith(c.action); // action shouldn't be altered
+      expect(history.action).toBe(c.want.action);
+      expect(history.index).toBe(c.want.index);
+      expect(history.length).toBe(c.want.length);
+      c.want.location.key = history.location.key;
+      expect(history.location).toEqual(c.want.location);
+    });
+  });
 });
 
-test("createHistoryMiddleware() should do nothing when unrelated action is passed", () => {
-  expect.assertions(1);
-
-  const router = new Router();
+describe("createHistoryMiddleware()", () => {
   const history = createMemoryHistory();
-  const action = {
-    type: "unrelated",
+  const historyMiddleware = createHistoryMiddleware(history);
+  const store = {
+    getState: jest.fn(() => {
+      return {};
+    }),
+    dispatch: jest.fn(),
   };
-  const act = createHistoryMiddleware(router, history)({
-    getState: () => {
-      return {};
+  const next = jest.fn();
+  const invoke = a => historyMiddleware(store)(next)(a);
+
+  const { action, index, length, location } = history;
+  const loc = { ...location };
+  ([
+    {
+      name: "do nothing with unrelated action",
+      action: { type: "UNRELATED" },
     },
-    dispatch: a => a,
-  })(a => {
-    expect(a).toBe(action);
-    return a;
+  ] as Array<{
+    name: string;
+    action: Action;
+    want: History;
+  }>).forEach(c => {
+    it(c.name, () => {
+      invoke(c.action);
+      expect(next).toBeCalledWith(c.action); // action shouldn't be altered
+      expect(history.action).toBe(action);
+      expect(history.index).toBe(index);
+      expect(history.length).toBe(length);
+      expect(history.location).toEqual(loc);
+    });
   });
-  act(action);
 });
 
-test("createStaticRouterMiddleware() should publish not found action when a routed path is passed", () => {
-  expect.assertions(1);
-
-  const router = new Router();
-  router.route("/users/:user_id");
-  createStaticRouterMiddleware(router, "/users")({
-    getState: () => {
-      return {};
-    },
-    dispatch: action => {
-      expect(action).toEqual({
-        type: ROUTE_NOT_FOUND,
-        action: "STATIC",
+describe("createRouterMiddleware()", () => {
+  describe("dispatch route action when it is initialized", () => {
+    ([
+      {
+        name: "with routed path",
+        path: "/",
+        want: {
+          type: ROUTE_FOUND,
+          route: {
+            params: {},
+          },
+        },
+      },
+      {
+        name: "without routed path",
+        path: "/users",
+        want: {
+          type: ROUTE_NOT_FOUND,
+        },
+      },
+    ] as Array<{
+      name: string;
+      path: string;
+      want: RouteAction;
+    }>).forEach(c => {
+      describe(c.name, () => {
+        const router = new Router();
+        const key = router.route(c.path);
+        const history = createMemoryHistory();
+        const middleware = createRouterMiddleware(history, router);
+        const store = {
+          getState: jest.fn(() => {
+            return {};
+          }),
+          dispatch: jest.fn(),
+        };
+        middleware(store);
+        it("should be dispatch route action with initial location", () => {
+          if (c.want.route != null) {
+            c.want.route.key = key;
+          }
+          expect(store.dispatch).toBeCalledWith(c.want);
+        });
       });
-      return action;
-    },
-  })(action => {
-    expect(false);
-    return action;
+    });
+  });
+
+  describe("dispatch route action when location is changed", () => {
+    const router = new Router();
+    const key = router.route("/users/:user_id");
+    ([
+      {
+        name: "routed path",
+        path: "/users/100",
+        state: null,
+        want: {
+          type: ROUTE_FOUND,
+          route: {
+            key,
+            params: {
+              user_id: "100",
+            },
+          },
+        },
+      },
+      {
+        name: "not routed path",
+        path: "/users",
+        state: null,
+        want: {
+          type: ROUTE_NOT_FOUND,
+        },
+      },
+      // {
+      //   name: "routed path internally",
+      //   path: "/users/100",
+      //   state: { internal: true },
+      // },
+      // {
+      //   name: "not routed path internally",
+      //   path: "/users",
+      //   state: { internal: true },
+      // },
+    ] as Array<{
+      name: string;
+      path: string;
+      state: any;
+      want: RouteAction;
+    }>).forEach(c => {
+      describe(c.name, () => {
+        const history = createMemoryHistory();
+        const middleware = createRouterMiddleware(history, router);
+        const store = {
+          getState: jest.fn(() => {
+            return {};
+          }),
+          dispatch: jest.fn(),
+        };
+        const next = jest.fn();
+        const invoke = middleware(store)(next);
+        store.dispatch.mockReset();
+        history.push(c.path, c.state);
+
+        // if (c.state != null && c.state.internal) {
+        //   it("shouldn't dispatch", () => {
+        //     expect(store.dispatch).not.toBeCalled();
+        //   });
+        // } else {
+        it("should dispatch", () => {
+          expect(store.dispatch).toBeCalledWith(c.want);
+        });
+        // }
+
+        it("shouldn't alter action", () => {
+          const a = { type: "FOO" };
+          invoke(a);
+          expect(next).toBeCalledWith(a);
+        });
+      });
+    });
   });
 });
 
-test("createStaticRouterMiddleware() should publish found action when a routed path is passed", () => {
-  expect.assertions(1);
-
-  const router = new Router();
-  const key = router.route("/users/:user_id");
-  createStaticRouterMiddleware(router, "/users/100")({
-    getState: () => {
-      return {};
-    },
-    dispatch: action => {
-      expect(action).toEqual({
+describe("createStaticRouterMiddleware()", () => {
+  ([
+    {
+      name: "routed path",
+      path: "/users/100",
+      want: {
         type: ROUTE_FOUND,
-        action: "STATIC",
         route: {
-          key,
           params: {
             user_id: "100",
           },
         },
+      },
+    },
+    {
+      name: "not routed path",
+      path: "/users",
+      want: {
+        type: ROUTE_NOT_FOUND,
+      },
+    },
+  ] as Array<{
+    name: string;
+    path: string;
+    want: RouteAction;
+  }>).forEach(c => {
+    describe(c.name, () => {
+      const router = new Router();
+      const key = router.route("/users/:user_id");
+      const store = {
+        getState: jest.fn(() => {
+          return {};
+        }),
+        dispatch: jest.fn(),
+      };
+      const next = jest.fn();
+      const invoke = createStaticRouterMiddleware(c.path, router)(store)(next);
+      it("should dispatch route action", () => {
+        if (c.want.route != null) {
+          c.want.route.key = key;
+        }
+        expect(store.dispatch).toBeCalledWith(c.want);
       });
-      return action;
-    },
-  })(action => {
-    expect(false);
-    return action;
-  });
-});
-
-test("createStaticRouterMiddleware() should do nothing when an unrelated action is passed", () => {
-  expect.assertions(1);
-
-  const router = new Router();
-  const history = createMemoryHistory();
-  const act = createStaticRouterMiddleware(router, "/")({
-    getState: () => {
-      return {};
-    },
-    dispatch: action => action,
-  })(action => {
-    expect(action).toEqual({
-      type: "unrelated",
+      it("shouldn't alter unrelated action: " + c.name, () => {
+        const a = { type: "FOO" };
+        invoke(a);
+        expect(next).toBeCalledWith(a);
+      });
     });
-    return action;
-  });
-  act({
-    type: "unrelated",
   });
 });

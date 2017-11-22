@@ -1,6 +1,6 @@
 import { Action as OriginalHistoryActionType, Location, Path } from "history";
 import { Action } from "redux";
-import { Option, State } from "./middlewares";
+import { State } from "./middlewares";
 import { Params, Route } from "./router";
 
 export type HistoryActionType = OriginalHistoryActionType | "STATIC";
@@ -58,14 +58,12 @@ export interface LocationAction extends Action {
   index: number;
   length: number;
   location: Location;
-  option: Option;
 }
 export const changed = (
   action: HistoryActionType,
   index: number,
   length: number,
   location: Location,
-  option: Option,
 ): LocationAction => {
   return {
     type: LOCATION_CHANGED,
@@ -73,26 +71,22 @@ export const changed = (
     index,
     length,
     location,
-    option,
   };
 };
 
 export const ROUTE_FOUND = "ROUTE_FOUND";
 export const ROUTE_NOT_FOUND = "ROUTE_NOT_FOUND";
 export interface RouteAction extends Action {
-  action: HistoryActionType;
   route?: Route;
 }
-export const route = (action: HistoryActionType, r?: Route): RouteAction => {
+export const route = (r?: Route): RouteAction => {
   if (r == null) {
     return {
       type: ROUTE_NOT_FOUND,
-      action,
     };
   }
   return {
     type: ROUTE_FOUND,
-    action,
     route: r,
   };
 };

@@ -102,12 +102,9 @@ import {
   {
     name: "should ignore unrelated action",
     state: {
-      action: "PUSH",
-      route: {
-        key: "/foo",
-        params: {
-          bar: "100",
-        },
+      key: "/foo",
+      params: {
+        bar: "100",
       },
     },
     action: {
@@ -117,41 +114,33 @@ import {
       },
     },
     want: {
-      action: "PUSH",
-      route: {
-        key: "/foo",
-        params: {
-          bar: "100",
-        },
+      key: "/foo",
+      params: {
+        bar: "100",
       },
     },
   },
   {
     name: "should return valid routing object when found",
     state: {},
-    action: route("PUSH", {
+    action: route({
       key: "/foo",
       params: {
         bar: "100",
       },
     }),
     want: {
-      action: "PUSH",
-      route: {
-        key: "/foo",
-        params: {
-          bar: "100",
-        },
+      key: "/foo",
+      params: {
+        bar: "100",
       },
     },
   },
   {
     name: "should return valid routing object when not found",
     state: {},
-    action: route("PUSH"),
-    want: {
-      action: "PUSH",
-    },
+    action: route(),
+    want: null,
   },
 ].forEach(
   (c: { name: string; state: any; action: RouteAction; want: RouteProps }) => {

@@ -55,14 +55,12 @@ test("should be called with Path and LocationState", () => {
 ([
   {
     name: "route with action as POP and route without params",
-    action: "POP",
     route: {
       key: "0",
       params: {},
     },
     want: {
       type: ROUTE_FOUND,
-      action: "POP",
       route: {
         key: "0",
         params: {},
@@ -71,7 +69,6 @@ test("should be called with Path and LocationState", () => {
   },
   {
     name: "route with action as POP and route with params",
-    action: "POP",
     route: {
       key: "1",
       params: {
@@ -80,7 +77,6 @@ test("should be called with Path and LocationState", () => {
     },
     want: {
       type: ROUTE_FOUND,
-      action: "POP",
       route: {
         key: "1",
         params: {
@@ -91,14 +87,12 @@ test("should be called with Path and LocationState", () => {
   },
   {
     name: "route with action as PUSH and route without params",
-    action: "PUSH",
     route: {
       key: "2",
       params: {},
     },
     want: {
       type: ROUTE_FOUND,
-      action: "PUSH",
       route: {
         key: "2",
         params: {},
@@ -107,7 +101,6 @@ test("should be called with Path and LocationState", () => {
   },
   {
     name: "route with action as PUSH and route with params",
-    action: "PUSH",
     route: {
       key: "3",
       params: {
@@ -116,7 +109,6 @@ test("should be called with Path and LocationState", () => {
     },
     want: {
       type: ROUTE_FOUND,
-      action: "PUSH",
       route: {
         key: "3",
         params: {
@@ -127,14 +119,12 @@ test("should be called with Path and LocationState", () => {
   },
   {
     name: "route with action as REPLACE and route without params",
-    action: "REPLACE",
     route: {
       key: "4",
       params: {},
     },
     want: {
       type: ROUTE_FOUND,
-      action: "REPLACE",
       route: {
         key: "4",
         params: {},
@@ -143,7 +133,6 @@ test("should be called with Path and LocationState", () => {
   },
   {
     name: "route with action as REPLACE and route with params",
-    action: "REPLACE",
     route: {
       key: "5",
       params: {
@@ -152,7 +141,6 @@ test("should be called with Path and LocationState", () => {
     },
     want: {
       type: ROUTE_FOUND,
-      action: "REPLACE",
       route: {
         key: "5",
         params: {
@@ -163,12 +151,11 @@ test("should be called with Path and LocationState", () => {
   },
 ] as Array<{
   name: string;
-  action: HistoryActionType;
   route: Route;
   want: RouteAction;
 }>).forEach(c => {
   test(c.name, () => {
-    const got = route(c.action, c.route);
+    const got = route(c.route);
     expect(got).toEqual(c.want);
   });
 });
@@ -176,35 +163,28 @@ test("should be called with Path and LocationState", () => {
 ([
   {
     name: "route with action as POP and no route",
-    action: "POP",
     want: {
       type: ROUTE_NOT_FOUND,
-      action: "POP",
     },
   },
   {
     name: "route with action as PUSH and no route",
-    action: "PUSH",
     want: {
       type: ROUTE_NOT_FOUND,
-      action: "PUSH",
     },
   },
   {
     name: "route with action as REPLACE and no route",
-    action: "REPLACE",
     want: {
       type: ROUTE_NOT_FOUND,
-      action: "REPLACE",
     },
   },
 ] as Array<{
   name: string;
-  action: HistoryActionType;
   want: RouteAction;
 }>).forEach(c => {
   test(c.name, () => {
-    const got = route(c.action);
+    const got = route();
     expect(got).toEqual(c.want);
   });
 });
