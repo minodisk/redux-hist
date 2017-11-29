@@ -24,8 +24,7 @@ export interface SaveStoreCallbacks {
 }
 
 export interface State<S, U> extends LocationState {
-  // internal: boolean;
-  store: S;
+  store?: S;
   userState?: U;
 }
 
@@ -36,21 +35,17 @@ const tryReplace = <S, U>(
   userState: U,
   onRequestShrinkStore: (store: S) => S,
 ) => {
-  history.location.state = { store, userState };
-  // try {
-  //   const state: State<S, U> = { internal: true, store, userState };
-  //   history.replace(path, state);
-  // } catch (err) {
-  //   // if (err.name === "NS_ERROR_ILLEGAL_VALUE") {
-  //   tryReplace(
-  //     history,
-  //     path,
-  //     onRequestShrinkStore(store),
-  //     userState,
-  //     onRequestShrinkStore,
-  //   );
-  //   // }
-  // }
+  try {
+    history.location.state = { store, userState };
+  } catch (err) {
+    tryReplace(
+      history,
+      path,
+      onRequestShrinkStore(store),
+      userState,
+      onRequestShrinkStore,
+    );
+  }
 };
 
 export const createRestoreMiddleware = <S, U>(
@@ -83,7 +78,6 @@ export const createRestoreMiddleware = <S, U>(
         }
 
         const state: State<S, U> = history.location.state;
-
         const path = `${history.location.pathname}${history.location
           .search}${history.location.hash}`;
         let store = getState();
@@ -170,39 +164,37 @@ export const createHistoryMiddleware = <S, U>(history: History): Middleware => {
           case HISTORY_PUSH:
             {
               const currentState: State<S, U> = history.location.state;
-              const currentUserState =
-                currentState == null ? null : currentState.userState;
               const { path, userState } = action as PathAction;
-              const state: State<S, U> = {
-                // internal: false,
-                store: undefined,
+              const nextState = {
+                ...currentState == null ? {} : currentState.userState,
+                ...userState == null ? {} : userState,
               };
-              if (currentUserState != null || userState != null) {
-                state.userState = {
-                  ...currentUserState,
-                  ...userState,
-                };
+              const state: State<S, U> = {};
+              if (Object.keys(nextState).length !== 0) {
+                state.userState = nextState;
               }
-              history.push(path, state);
+              history.push(
+                path,
+                Object.keys(state).length === 0 ? null : state,
+              );
             }
             break;
           case HISTORY_REPLACE:
             {
               const currentState: State<S, U> = history.location.state;
-              const currentUserState =
-                currentState == null ? null : currentState.userState;
               const { path, userState } = action as PathAction;
-              const state: State<S, U> = {
-                // internal: false,
-                store: undefined,
+              const nextState = {
+                ...currentState == null ? {} : currentState.userState,
+                ...userState == null ? {} : userState,
               };
-              if (currentUserState != null || userState != null) {
-                state.userState = {
-                  ...currentUserState,
-                  ...userState,
-                };
+              const state: State<S, U> = {};
+              if (Object.keys(nextState).length !== 0) {
+                state.userState = nextState;
               }
-              history.replace(path, state);
+              history.replace(
+                path,
+                Object.keys(state).length === 0 ? null : state,
+              );
             }
             break;
         }
@@ -220,9 +212,6 @@ export const createRouterMiddleware = (
     dispatch(route(router.exec(history.location.pathname)));
     history.listen((location, action) => {
       const { key, pathname, search, hash, state } = location;
-      // if (state != null && state.internal) {
-      //   return;
-      // }
       dispatch(route(router.exec(pathname)));
     });
     return next => {
