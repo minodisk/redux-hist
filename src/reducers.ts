@@ -1,8 +1,8 @@
 import { Location } from "history";
 import { Action } from "redux";
 import {
-  LOCATION_CHANGED,
-  LocationAction,
+  HISTORY_CHANGED,
+  HistoryAction,
   RESTORE,
   RestoreAction,
   ROUTE_FOUND,
@@ -11,19 +11,33 @@ import {
 } from "./actions";
 import { Route } from "./router";
 
+export const reduceStore = <S>(
+  state: any = {},
+  action: RestoreAction<S> | Action,
+) => {
+  switch (action.type) {
+    case RESTORE:
+      const { store } = action as RestoreAction<S>;
+      return store;
+    default:
+      return state;
+  }
+};
+
 export interface History {
   action: string;
   index: number;
   length: number;
   location: Location;
 }
-export const reduceLocation = (
+
+export const reduceHistory = (
   state: any = {},
-  a: LocationAction | Action,
+  a: HistoryAction | Action,
 ): History => {
   switch (a.type) {
-    case LOCATION_CHANGED:
-      const { action, index, length, location } = a as LocationAction;
+    case HISTORY_CHANGED:
+      const { action, index, length, location } = a as HistoryAction;
       return {
         action,
         index,
@@ -45,19 +59,6 @@ export const reduceRoute = (
       return route;
     case ROUTE_NOT_FOUND:
       return null;
-    default:
-      return state;
-  }
-};
-
-export const reduceStore = <S>(
-  state: any = {},
-  action: RestoreAction<S> | Action,
-) => {
-  switch (action.type) {
-    case RESTORE:
-      const { store } = action as RestoreAction<S>;
-      return store;
     default:
       return state;
   }

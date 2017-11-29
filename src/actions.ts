@@ -50,10 +50,10 @@ export const replace = (path: Path, userState?: any): PathAction => {
   };
 };
 
-export type HistoryAction = Action | DiffAction | PathAction;
+// export type HistoryAction = Action | DiffAction | PathAction;
 
-export const LOCATION_CHANGED = "LOCATION_CHANGED";
-export interface LocationAction extends Action {
+export const HISTORY_CHANGED = "HISTORY_CHANGED";
+export interface HistoryAction extends Action {
   action: HistoryActionType;
   index: number;
   length: number;
@@ -64,9 +64,9 @@ export const changed = (
   index: number,
   length: number,
   location: Location,
-): LocationAction => {
+): HistoryAction => {
   return {
-    type: LOCATION_CHANGED,
+    type: HISTORY_CHANGED,
     action,
     index,
     length,

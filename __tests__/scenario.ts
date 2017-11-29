@@ -27,7 +27,7 @@ import {
   LocationAction,
   PathAction,
   push,
-  reduceLocation,
+  reduceHistory,
   reduceRoute,
   reduceStore,
   replace,
@@ -95,7 +95,7 @@ describe("store middleware's scenario", () => {
   const historyMiddleware = createHistoryMiddleware(history);
   const routerMiddleware = createRouterMiddleware(history, router);
   const childReducer = combineReducers({
-    history: reduceLocation,
+    history: reduceHistory,
     route: reduceRoute,
     users: (store = {}, action) => {
       switch (action.type) {

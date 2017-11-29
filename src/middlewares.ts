@@ -3,14 +3,13 @@ import { Action, Dispatch, Middleware, MiddlewareAPI, Store } from "redux";
 import {
   changed,
   DiffAction,
+  HISTORY_CHANGED,
   HISTORY_GO,
   HISTORY_GO_BACK,
   HISTORY_GO_FORWARD,
   HISTORY_PUSH,
   HISTORY_REPLACE,
   HistoryAction,
-  LOCATION_CHANGED,
-  LocationAction,
   PathAction,
   restore,
   route,
@@ -65,7 +64,7 @@ export const createRestoreMiddleware = <S, U>(
     });
 
     return next => {
-      return <A extends HistoryAction>(action: A) => {
+      return <A extends Action | DiffAction | PathAction>(action: A) => {
         // History action
         if (
           action.type !== HISTORY_GO_BACK &&
@@ -103,7 +102,7 @@ export const createRestoreMiddleware = <S, U>(
 export const createHistoryMiddleware = <S, U>(history: History): Middleware => {
   return <T>({ dispatch, getState }: MiddlewareAPI<T>) => {
     {
-      // 1. Publish LocationAction representing the initial Location.
+      // 1. Publish HistoryAction representing the initial Location.
       // 2. Publish routing result action for initial Location.
       const { key, pathname, search, hash, state } = history.location;
       dispatch(
@@ -119,7 +118,7 @@ export const createHistoryMiddleware = <S, U>(history: History): Middleware => {
 
     // 1. Subscribe history event from history API.
     // 2. Detect publishing POP / PUSH / REPLACE event from history API.
-    // 3. Publish LocationAction representing the current Location.
+    // 3. Publish HistoryAction representing the current Location.
     // 4. Publish routing result action for the Location.
     history.listen((location, action) => {
       const { key, pathname, search, hash, state } = location;
@@ -135,7 +134,7 @@ export const createHistoryMiddleware = <S, U>(history: History): Middleware => {
     });
 
     return next => {
-      return <A extends HistoryAction>(action: A) => {
+      return <A extends Action | DiffAction | PathAction>(action: A) => {
         // History action
         if (
           action.type !== HISTORY_GO_BACK &&
@@ -215,7 +214,7 @@ export const createRouterMiddleware = (
       dispatch(route(router.exec(pathname)));
     });
     return next => {
-      return <A extends HistoryAction>(action: A) => {
+      return <A extends Action | DiffAction | PathAction>(action: A) => {
         return next(action);
       };
     };

@@ -1,6 +1,6 @@
 {
   "name": "redux-hist",
-  "version": "0.0.12",
+  "version": "0.1.0-rc2",
   "description":
     "Middlewares / Actions / Reducers / Router for Redux around History API.",
   "main": "lib/index.js",
@@ -17,7 +17,8 @@
     "build": "./node_modules/.bin/tsc -p .",
     "test": "./node_modules/.bin/jest --coverage",
     "posttest": "if [ \"$CI\" = \"true\" ]; then npm run reportcov; fi",
-    "reportcov": "codecov -f coverage/*.json"
+    "reportcov": "codecov -f coverage/*.json",
+    "prepublish": "npm run build"
   },
   "prettier": {
     "trailingComma": "all"
